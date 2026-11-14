@@ -1,7 +1,14 @@
 # Travel Karo — Website + Admin Dashboard + CRM
 
 A complete, working website for **Travel Karo** (Bathinda, Punjab), built with
-**FastAPI + Jinja2 + SQLAlchemy**. One Python app runs everything:
+**FastAPI + Jinja2 + SQLAlchemy**. One Python app runs everything.
+
+**Architecture:** FastAPI backend · **SQLite + local images** for local dev ·
+**Supabase PostgreSQL + Supabase Storage** in production · **Alembic** for
+database migrations · deployed on **Vercel** behind the **travelkaro.net**
+domain. The database and image backends are chosen purely by environment
+variables (see `.env.example`), so the same code runs locally and in production.
+Full details in `MIGRATION_PLAN.md` and `DEPLOYMENT.md`.
 
 - **Public website** — Home, Destinations (Domestic / International tabs), About,
   Contact, a "Book Now" enquiry flow, a floating WhatsApp button, and IRCTC /
@@ -48,20 +55,29 @@ copy .env.example .env
 #   Generate one with:
 python -c "import secrets; print(secrets.token_hex(32))"
 
-# 5. Create your admin login (asks for email + password)
+# 5. Create the database tables (schema is managed by Alembic)
+alembic upgrade head
+
+# 6. Create your admin login (asks for email + password)
 python create_admin.py
 
-# 6. Start the website
+# 7. Start the website
 uvicorn app.main:app --reload
 ```
 
 Now open your browser:
 
 - **Website:**  http://localhost:8000
-- **Admin:**    http://localhost:8000/admin  (log in with the email/password from step 5)
+- **Admin:**    http://localhost:8000/admin  (log in with the email/password from step 6)
 
-That's it. On first run it creates a `travelkaro.db` SQLite file automatically —
-no database to install. Uploaded package images are saved in the `uploads/` folder.
+That's it. Locally, with no Supabase settings in `.env`, the app uses a **SQLite**
+file (`travelkaro.db`) and saves uploaded images to the local `uploads/` folder —
+no database or cloud account needed. Production uses Supabase Postgres + Storage
+(see `DEPLOYMENT.md`); the switch is entirely via environment variables.
+
+> **Schema changes** are applied with `alembic upgrade head` — the app never
+> creates or alters tables on startup. After pulling changes that touch
+> `app/models.py`, run `alembic upgrade head` again.
 
 ---
 
@@ -70,22 +86,29 @@ no database to install. Uploaded package images are saved in the `uploads/` fold
 ```
 travel-karo/
 ├─ app/
-│  ├─ main.py              App setup, static files, SEO (robots, sitemap)
-│  ├─ config.py            Settings (reads from .env)
-│  ├─ database.py          Database connection (SQLite locally / Postgres in prod)
-│  ├─ models.py            The 5 tables (packages, enquiries, notes, settings, admins)
-│  ├─ auth.py              Password hashing + login protection
-│  ├─ utils.py             Image upload, spam limiter, helpers
-│  ├─ routers/
-│  │  ├─ public.py         Home, Packages, Contact, enquiry submission
-│  │  └─ admin.py          Login, dashboard, packages, CRM, settings
+│  ├─ main.py              App setup, static files, SEO, page-view tracking
+│  ├─ config.py            Settings + absolute paths (reads from .env)
+│  ├─ database.py          DB engine (SQLite locally / Postgres pooler in prod)
+│  ├─ models.py            The 7 tables (admins, packages, enquiries, notes,
+│  │                       settings, page_views, click_events)
+│  ├─ auth.py              Password hashing (bcrypt) + login protection
+│  ├─ storage.py           Image storage: Supabase Storage or local disk
+│  ├─ utils.py             Spam limiter + text helpers
+│  ├─ routers/             public.py (site + enquiry) · admin.py (admin + CRM)
 │  ├─ templates/           All pages (Jinja2 HTML)
 │  └─ static/              CSS, JavaScript, logo images
-├─ uploads/packages/       Uploaded package photos (created automatically)
+├─ migrations/             Alembic migrations (schema is applied explicitly)
+├─ alembic.ini             Alembic config (DB URL comes from .env, not here)
+├─ scripts/
+│  ├─ migrate_sqlite_to_postgres.py   One-time SQLite → Postgres data migration
+│  ├─ migrate_images_to_supabase.py   One-time local → Supabase image migration
+│  └─ check_db.py                     Verify a live DB / Supabase pooler
+├─ uploads/packages/       Local image folder (dev only)
 ├─ create_admin.py         Create / reset an admin login
 ├─ requirements.txt        Python packages
 ├─ .env.example            Settings template → copy to .env
-├─ DEPLOYMENT.md           How to go live + connect your GoDaddy domain
+├─ MIGRATION_PLAN.md       Final architecture + migration runbook
+├─ DEPLOYMENT.md           Supabase + Vercel + GoDaddy deployment guide
 └─ TESTING.md              What was tested and how to re-check
 ```
 

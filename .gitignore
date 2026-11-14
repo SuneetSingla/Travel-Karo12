@@ -9,3 +9,5 @@ uploads/packages/*
 !uploads/packages/.gitkeep
 .DS_Store
 *.log
+*.db.backup-*
+*.backup-*

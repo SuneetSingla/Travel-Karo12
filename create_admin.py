@@ -12,11 +12,18 @@ way an admin account is created.
 import getpass
 import sys
 
-from app.database import Base, engine, SessionLocal
+from sqlalchemy import inspect
+from app.database import engine, SessionLocal
 from app.models import Admin
 from app.auth import hash_password
 
-Base.metadata.create_all(bind=engine)
+# Schema is managed by Alembic (not created here). Make sure it's applied.
+if "admins" not in inspect(engine).get_table_names():
+    sys.exit(
+        "The database schema isn't set up yet.\n"
+        "Run this first:   alembic upgrade head\n"
+        "Then run this script again."
+    )
 
 
 def main() -> None:

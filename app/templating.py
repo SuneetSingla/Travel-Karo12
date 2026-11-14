@@ -16,12 +16,35 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 templates.env.filters["as_list"] = lines_to_list
 
 
+_DEFAULT_SETTINGS = dict(
+    phone="+91 98142-54414",
+    email="info@travelkaro.net",
+    address="#4910, Post Office Bazar, Bathinda, Punjab – 151005, India",
+    website="www.travelkaro.net",
+    instagram="https://instagram.com/travelkaro12",
+    facebook="https://facebook.com/travelkaro12",
+)
+
+
 def get_business_settings() -> BusinessSettings:
-    """Fetch the single business-settings row (used in footer/contact everywhere)."""
+    """Fetch the single business-settings row (used in footer/contact everywhere).
+
+    Seeds the default row lazily on first access (not at startup, so the app does
+    no DB work on a serverless cold start). If the DB is unavailable or read-only,
+    returns an in-memory default so templates never crash.
+    """
     db = SessionLocal()
     try:
         row = db.get(BusinessSettings, 1)
+        if row is None:
+            row = BusinessSettings(id=1, **_DEFAULT_SETTINGS)
+            db.add(row)
+            db.commit()
+            db.refresh(row)
         return row
+    except Exception:
+        db.rollback()
+        return BusinessSettings(id=1, **_DEFAULT_SETTINGS)  # transient fallback
     finally:
         db.close()
 

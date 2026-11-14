@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     SITE_URL: str = "http://localhost:8000"
     PRODUCTION: bool = False
 
+    # --- Supabase Storage (production image hosting) ---------------------
+    # All three must be set to enable cloud image storage. When any is blank,
+    # the app falls back to LOCAL disk storage (so local dev needs no Supabase).
+    # SUPABASE_SERVICE_KEY is a SECRET — server-side only, never sent to the
+    # browser and never committed (kept in .env / Vercel env vars).
+    SUPABASE_URL: str = ""
+    SUPABASE_SERVICE_KEY: str = ""
+    SUPABASE_BUCKET: str = "packages"
+
     # Fixed brand details (used across the site). Contact info that the admin
     # can change lives in the database (business_settings), not here.
     BRAND_NAME: str = "Travel Karo"
@@ -29,6 +38,15 @@ class Settings(BaseSettings):
     # Image upload limits
     MAX_IMAGE_MB: int = 5
     ALLOWED_IMAGE_TYPES: tuple = ("image/jpeg", "image/png", "image/webp")
+
+    @property
+    def use_supabase_storage(self) -> bool:
+        """True only when all Supabase Storage settings are present."""
+        return bool(self.SUPABASE_URL and self.SUPABASE_SERVICE_KEY and self.SUPABASE_BUCKET)
+
+    @property
+    def is_sqlite(self) -> bool:
+        return self.DATABASE_URL.startswith("sqlite")
 
 
 settings = Settings()

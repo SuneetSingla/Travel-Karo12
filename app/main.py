@@ -8,60 +8,15 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from .config import settings, STATIC_DIR, UPLOADS_DIR
-from .database import Base, engine, SessionLocal
-from .models import BusinessSettings
+from .database import SessionLocal
 from .templating import templates, base_context
 from .routers import public, admin
 
-# Create tables on first run (safe to call every start). Guarded so that a
-# read-only or unavailable database (e.g. a misconfigured serverless deploy)
-# cannot prevent the app from importing — pages that don't need the DB still work.
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception:
-    pass
-
-
-def _ensure_columns() -> None:
-    """Add newer columns to an existing database if they're missing.
-
-    Lets a database created by an earlier version keep working without a manual
-    migration. New tables are handled by create_all above.
-    """
-    from sqlalchemy import text, inspect
-    inspector = inspect(engine)
-    try:
-        cols = {c["name"] for c in inspector.get_columns("packages")}
-    except Exception:
-        return
-    if "category" not in cols:
-        with engine.begin() as conn:
-            conn.execute(text("ALTER TABLE packages ADD COLUMN category VARCHAR(20) DEFAULT 'domestic'"))
-
-
-_ensure_columns()
-
-
-def ensure_business_settings_row() -> None:
-    """Make sure the single editable business-info row exists with defaults."""
-    db = SessionLocal()
-    try:
-        if db.get(BusinessSettings, 1) is None:
-            db.add(BusinessSettings(
-                id=1,
-                phone="+91 98142-54414",
-                email="info@travelkaro.net",
-                address="#4910, Post Office Bazar, Bathinda, Punjab – 151005, India",
-                website="www.travelkaro.net",
-                instagram="https://instagram.com/travelkaro12",
-                facebook="https://facebook.com/travelkaro12",
-            ))
-            db.commit()
-    finally:
-        db.close()
-
-
-ensure_business_settings_row()
+# NOTE: The database schema is NOT created or migrated here. Schema changes are
+# applied explicitly with Alembic ("alembic upgrade head"), so the app does no
+# schema work at startup — important on serverless (Vercel), where startup runs
+# on every cold start. See MIGRATION_PLAN.md. The default business-settings row
+# is seeded lazily on first read (templating.get_business_settings).
 
 app = FastAPI(title="Travel Karo")
 

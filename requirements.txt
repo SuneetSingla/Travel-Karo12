@@ -11,3 +11,5 @@ python-dotenv==1.0.1
 Pillow==11.0.0
 # Only needed if you use PostgreSQL in production (not for localhost/SQLite):
 psycopg[binary]==3.2.3
+alembic==1.20.1
+httpx==0.28.1

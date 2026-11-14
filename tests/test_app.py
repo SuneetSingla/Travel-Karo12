@@ -17,9 +17,13 @@ from PIL import Image
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.database import SessionLocal
+from app.database import SessionLocal, Base, engine
 from app.models import Admin, Enquiry, Package, PageView, ClickEvent
 from app.auth import hash_password
+
+# Schema is normally applied with Alembic; for this self-contained test we build
+# it directly on the throwaway database.
+Base.metadata.create_all(bind=engine)
 
 # Seed a known admin.
 db = SessionLocal()
