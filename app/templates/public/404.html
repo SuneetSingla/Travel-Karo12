@@ -1,0 +1,10 @@
+{% extends "base_public.html" %}
+{% block content %}
+<section class="section">
+  <div class="container empty-state">
+    <h1 class="section-title">Page not found</h1>
+    <p>{{ message or "The page you were looking for doesn't exist." }}</p>
+    <a href="/" class="btn btn-primary">Back to home</a>
+  </div>
+</section>
+{% endblock %}

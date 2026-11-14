@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title or "Travel Karo" }}</title>
+  <meta name="description" content="{{ meta_description or 'Travel Karo — a family-owned travel agency. Holidays, flights, visas and more.' }}" />
+  <link rel="icon" href="/static/img/logo-emblem.jpg" />
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ page_title or 'Travel Karo' }}" />
+  <meta property="og:description" content="{{ meta_description or 'Travel Karo — Let’s make memories.' }}" />
+  <meta property="og:image" content="{{ site_url }}/static/img/logo-emblem.jpg" />
+  <meta property="og:site_name" content="Travel Karo" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+
+  <!-- Local business structured data (SEO) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "name": "Travel Karo",
+    "image": "{{ site_url }}/static/img/logo-emblem.jpg",
+    "telephone": "{{ biz.phone }}",
+    "email": "{{ biz.email }}",
+    "url": "{{ site_url }}",
+    "slogan": "Let's Make Memories.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "#4910, Post Office Bazar",
+      "addressLocality": "Bathinda",
+      "addressRegion": "Punjab",
+      "postalCode": "151005",
+      "addressCountry": "IN"
+    }
+  }
+  </script>
+</head>
+<body>
+  {% include "partials/nav.html" %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  {% include "partials/footer.html" %}
+  <script src="/static/js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

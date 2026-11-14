@@ -1,0 +1,43 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<div class="panel-head mb">
+  <p class="muted">{{ packages|length }} package(s) total</p>
+  <a href="/admin/packages/new" class="btn btn-primary btn-sm">+ Add New Package</a>
+</div>
+
+{% if packages %}
+<div class="pkg-admin-grid">
+  {% for p in packages %}
+  <div class="pkg-admin-card">
+    <div class="pkg-admin-media">
+      {% if p.cover_image %}<img src="{{ p.cover_image }}" alt="{{ p.title }}" />
+      {% else %}<div class="pkg-card-placeholder sm">No image</div>{% endif %}
+      <span class="badge {% if p.status=='published' %}badge-green{% else %}badge-grey{% endif %}">{{ p.status }}</span>
+    </div>
+    <div class="pkg-admin-body">
+      <h3>{{ p.title }}</h3>
+      <p class="muted sm">{{ p.destination or '—' }}{% if p.duration %} · {{ p.duration }}{% endif %}{% if p.starting_price %} · ₹{{ "{:,.0f}".format(p.starting_price) }}{% endif %}</p>
+      <div class="pkg-admin-actions">
+        <a href="/admin/packages/{{ p.id }}/edit" class="btn btn-outline btn-xs">Edit</a>
+        <a href="/admin/packages/{{ p.id }}/preview" target="_blank" class="btn btn-ghost btn-xs">Preview</a>
+        {% if p.status == 'published' %}
+          <form method="post" action="/admin/packages/{{ p.id }}/status" class="inline"><input type="hidden" name="to" value="draft"><button class="btn btn-ghost btn-xs">Unpublish</button></form>
+        {% else %}
+          <form method="post" action="/admin/packages/{{ p.id }}/status" class="inline"><input type="hidden" name="to" value="published"><button class="btn btn-ghost btn-xs pub">Publish</button></form>
+        {% endif %}
+        <form method="post" action="/admin/packages/{{ p.id }}/delete" class="inline" onsubmit="return confirm('Delete “{{ p.title }}”? This cannot be undone.');"><button class="btn btn-danger btn-xs">Delete</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel empty-panel">
+  <h3>No packages yet</h3>
+  <p>Add your first holiday package. Save it as a draft, or publish it to show on the website instantly.</p>
+  <a href="/admin/packages/new" class="btn btn-primary">+ Add New Package</a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base_public.html" %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <span class="hero-eyebrow">{{ tagline }}</span>
+    <h1 class="page-hero-title">Contact Us</h1>
+    <p class="page-hero-sub">Have a trip in mind? Send us your details and our team will get back to you.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+
+    <!-- LEFT: details + map -->
+    <div class="contact-info">
+      <h2 class="section-title sm">Get in touch</h2>
+      <ul class="contact-list">
+        {% if biz.address %}<li><strong>Address</strong><span>{{ biz.address }}</span></li>{% endif %}
+        {% if biz.phone %}<li><strong>Phone</strong><a href="tel:{{ biz.phone | replace(' ','') }}">{{ biz.phone }}</a></li>{% endif %}
+        {% if biz.email %}<li><strong>Email</strong><a href="mailto:{{ biz.email }}">{{ biz.email }}</a></li>{% endif %}
+        {% if biz.website %}<li><strong>Website</strong><a href="https://{{ biz.website | replace('https://','') | replace('http://','') }}" target="_blank" rel="noopener">{{ biz.website }}</a></li>{% endif %}
+      </ul>
+      <div class="contact-social">
+        {% if biz.phone %}<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="https://wa.me/{{ biz.phone | replace(' ','') | replace('+','') | replace('-','') }}">WhatsApp us</a>{% endif %}
+        {% if biz.instagram %}<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href="{{ biz.instagram }}">Instagram</a>{% endif %}
+        {% if biz.facebook %}<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href="{{ biz.facebook }}">Facebook</a>{% endif %}
+      </div>
+      <div class="map-embed">
+        <iframe
+          title="Travel Karo location"
+          src="https://www.google.com/maps?q={{ biz.address | urlencode }}&output=embed"
+          width="100%" height="280" style="border:0" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+
+    <!-- RIGHT: enquiry form -->
+    <div class="contact-form-wrap" id="enquiry">
+      {% if sent %}
+        <div class="alert alert-success">
+          <strong>Thank you! 🎉</strong>
+          <p>Your enquiry has reached the Travel Karo team. We'll contact you shortly — no need to email or call separately.</p>
+          <a href="/packages" class="btn btn-outline btn-sm">Browse more packages</a>
+        </div>
+      {% endif %}
+      {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+
+      <form method="post" action="/enquiry" class="enquiry-form">
+        {% if selected_package %}
+          <div class="selected-pkg">
+            <span>Booking enquiry for</span>
+            <strong>{{ selected_package.title }}</strong>
+          </div>
+          <input type="hidden" name="package_id" value="{{ selected_package.id }}" />
+        {% endif %}
+
+        <!-- honeypot: hidden from humans, bots fill it in -->
+        <div class="hp"><label>Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label></div>
+
+        <div class="form-row">
+          <div class="field"><label class="label">Full Name *</label><input class="input" type="text" name="customer_name" required /></div>
+          <div class="field"><label class="label">Phone Number *</label><input class="input" type="tel" name="phone" required /></div>
+        </div>
+
+        <div class="form-row">
+          <div class="field"><label class="label">Email Address</label><input class="input" type="email" name="email" /></div>
+          <div class="field">
+            <label class="label">Service Interested In</label>
+            <select class="input" name="interested_service">
+              <option value="">Select a service</option>
+              {% for s in services %}
+              <option value="{{ s }}" {% if prefill_service == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field"><label class="label">Destination</label><input class="input" type="text" name="destination" placeholder="e.g. Dubai, Manali, Bali" /></div>
+          <div class="field"><label class="label">Travel Date</label><input class="input" type="date" name="travel_date" /></div>
+        </div>
+
+        <div class="form-row">
+          <div class="field"><label class="label">Number of Travellers</label><input class="input" type="number" min="1" name="num_travellers" /></div>
+          <div class="field"></div>
+        </div>
+
+        <div class="field"><label class="label">Message / Requirements</label><textarea class="input" name="message" rows="4" placeholder="Tell us about your trip..."></textarea></div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Submit Enquiry</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block scripts %}
+{% if sent %}<script>document.getElementById('enquiry').scrollIntoView();</script>{% endif %}
+{% endblock %}

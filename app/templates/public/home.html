@@ -1,0 +1,105 @@
+{% extends "base_public.html" %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="container hero-inner">
+    <span class="hero-eyebrow">{{ tagline }}</span>
+    <h1 class="hero-title">Your Journey Begins With Travel Karo</h1>
+    <p class="hero-sub">Discover the world with thoughtfully planned holidays, seamless bookings and personalised travel assistance. Let's make memories together.</p>
+    <div class="hero-cta">
+      <a href="/packages" class="btn btn-primary btn-lg">Explore Packages</a>
+      <a href="/contact" class="btn btn-light btn-lg">Book a Package</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section">
+  <div class="container about-grid">
+    <div>
+      <span class="eyebrow">About Travel Karo</span>
+      <h2 class="section-title">A family that loves planning your travels</h2>
+      <p class="lead">Travel Karo is a family-owned travel agency based in Bathinda, helping travellers plan memorable journeys across India and around the world.</p>
+      <p>From flights and hotels to complete holiday packages, visas, cruises and travel insurance, we take care of the details so you can focus on the experience. Friendly guidance, honest advice and personal attention are at the heart of how we work.</p>
+      <a href="/contact" class="btn btn-outline">Talk to us</a>
+    </div>
+    <div class="about-emblem">
+      <img src="/static/img/logo-emblem.jpg" alt="Travel Karo" />
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">What we offer</span>
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-intro">Everything you need for a smooth trip, under one roof.</p>
+    </div>
+    {% include "partials/services.html" %}
+  </div>
+</section>
+
+<!-- FEATURED PACKAGES -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Handpicked trips</span>
+      <h2 class="section-title">Explore Our Holiday Packages</h2>
+    </div>
+    {% if featured %}
+      <div class="pkg-grid">
+        {% for p in featured %}{% include "partials/package_card.html" %}{% endfor %}
+      </div>
+      <div class="center mt-32"><a href="/packages" class="btn btn-outline">View all packages</a></div>
+    {% else %}
+      <div class="empty-state">
+        <h3>New packages coming soon</h3>
+        <p>We're putting together exciting holiday packages. In the meantime, tell us where you'd like to go and we'll plan it for you.</p>
+        <a href="/contact" class="btn btn-primary">Enquire about a trip</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- WHY CHOOSE -->
+<section class="section section-dark">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow light">Why Travel Karo</span>
+      <h2 class="section-title light">Travel made simple and personal</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <h3>Personalised planning</h3>
+        <p>We tailor every trip to your dates, budget and style — not a one-size-fits-all package.</p>
+      </div>
+      <div class="why-card">
+        <h3>One point of contact</h3>
+        <p>Flights, hotels, visas and insurance handled together, so you deal with one friendly team.</p>
+      </div>
+      <div class="why-card">
+        <h3>Family-run care</h3>
+        <p>You're looked after personally, with honest guidance from people who love travel.</p>
+      </div>
+      <div class="why-card">
+        <h3>End-to-end support</h3>
+        <p>From the first enquiry to your return home, we're here to help at every step.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="container cta-inner">
+    <h2>Ready to Plan Your Next Adventure?</h2>
+    <p>Tell us your dream destination and we'll take care of the rest.</p>
+    <a href="/contact" class="btn btn-light btn-lg">Contact Travel Karo</a>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<a href="/admin/enquiries" class="back-link">← Back to all enquiries</a>
+
+<div class="crm-grid">
+  <!-- LEFT: customer + editable details -->
+  <div class="panel">
+    <div class="crm-head">
+      <div>
+        <h2 class="crm-name">{{ lead.customer_name }}</h2>
+        <span class="src-tag">{{ lead.source }}</span>
+        <span class="badge status-{{ lead.status | replace(' ','-') | replace('/','') | lower }}">{{ lead.status }}</span>
+      </div>
+      <div class="crm-quick">
+        <a href="https://wa.me/{{ lead.phone | replace(' ','') | replace('+','') | replace('-','') }}" target="_blank" class="btn btn-wa btn-sm">WhatsApp</a>
+        <a href="tel:{{ lead.phone | replace(' ','') }}" class="btn btn-outline btn-sm">Call</a>
+      </div>
+    </div>
+
+    <dl class="crm-facts">
+      <div><dt>Destination</dt><dd>{{ lead.destination or '—' }}</dd></div>
+      {% if lead.package_name %}<div><dt>Package</dt><dd>{{ lead.package_name }}</dd></div>{% endif %}
+      <div><dt>Travel date</dt><dd>{{ lead.travel_date.strftime('%d %b %Y') if lead.travel_date else '—' }}</dd></div>
+      <div><dt>Travellers</dt><dd>{{ lead.num_travellers or '—' }}</dd></div>
+      <div><dt>Email</dt><dd>{{ lead.email or '—' }}</dd></div>
+      <div><dt>Received</dt><dd>{{ lead.created_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+    </dl>
+
+    {% if lead.message %}
+    <div class="crm-message"><h4>Customer message</h4><p>{{ lead.message }}</p></div>
+    {% endif %}
+
+    <form method="post" action="/admin/enquiries/{{ lead.id }}/update" class="crm-edit">
+      <h4>Manage lead</h4>
+      <div class="form-row">
+        <div class="field"><label class="label">Status</label>
+          <select class="input" name="status">
+            {% for s in lead_statuses %}<option value="{{ s }}" {% if lead.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field"><label class="label">Follow-up date</label>
+          <input class="input" type="date" name="follow_up_date" value="{{ lead.follow_up_date.isoformat() if lead.follow_up_date else '' }}" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label class="label">Name</label><input class="input" name="customer_name" value="{{ lead.customer_name }}" /></div>
+        <div class="field"><label class="label">Phone</label><input class="input" name="phone" value="{{ lead.phone }}" /></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label class="label">Email</label><input class="input" name="email" value="{{ lead.email or '' }}" /></div>
+        <div class="field"><label class="label">Destination</label><input class="input" name="destination" value="{{ lead.destination or '' }}" /></div>
+      </div>
+      <button class="btn btn-primary">Save changes</button>
+    </form>
+
+    <form method="post" action="/admin/enquiries/{{ lead.id }}/delete" class="mt-24" onsubmit="return confirm('Delete this enquiry permanently?');">
+      <button class="btn btn-danger btn-sm">Delete enquiry</button>
+    </form>
+  </div>
+
+  <!-- RIGHT: internal notes -->
+  <div class="panel">
+    <h4 class="notes-title">Internal notes <span class="hint">(private — never shown to customers)</span></h4>
+    <form method="post" action="/admin/enquiries/{{ lead.id }}/note" class="note-form">
+      <textarea class="input" name="note" rows="3" placeholder="Log a call, a quotation sent, requirements..." required></textarea>
+      <button class="btn btn-primary btn-sm">Add note</button>
+    </form>
+    <div class="note-list">
+      {% for n in lead.notes %}
+      <div class="note-item">
+        <p>{{ n.note }}</p>
+        <span class="note-time">{{ n.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+      </div>
+      {% else %}
+      <p class="muted">No notes yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+{% if saved %}<div class="alert alert-success">Business details updated — they're now live on the website.</div>{% endif %}
+{% if pwd == 'ok' %}<div class="alert alert-success">Password changed successfully.</div>{% endif %}
+{% if pwd == 'wrong' %}<div class="alert alert-error">Current password was incorrect.</div>{% endif %}
+{% if pwd == 'invalid' %}<div class="alert alert-error">New password must be at least 8 characters and match the confirmation.</div>{% endif %}
+
+<div class="settings-grid">
+  <div class="panel">
+    <h2 class="panel-title">Business contact information</h2>
+    <p class="muted mb">These appear in the website footer and on the Contact page.</p>
+    <form method="post" action="/admin/settings">
+      <div class="field"><label class="label">Phone</label><input class="input" name="phone" value="{{ biz.phone or '' }}" /></div>
+      <div class="field"><label class="label">Email</label><input class="input" name="email" value="{{ biz.email or '' }}" /></div>
+      <div class="field"><label class="label">Address</label><textarea class="input" name="address" rows="2">{{ biz.address or '' }}</textarea></div>
+      <div class="field"><label class="label">Website</label><input class="input" name="website" value="{{ biz.website or '' }}" /></div>
+      <div class="form-row">
+        <div class="field"><label class="label">Instagram URL</label><input class="input" name="instagram" value="{{ biz.instagram or '' }}" /></div>
+        <div class="field"><label class="label">Facebook URL</label><input class="input" name="facebook" value="{{ biz.facebook or '' }}" /></div>
+      </div>
+      <button class="btn btn-primary">Save details</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2 class="panel-title">Change password</h2>
+    <form method="post" action="/admin/settings/password">
+      <div class="field"><label class="label">Current password</label><input class="input" type="password" name="current_password" required /></div>
+      <div class="field"><label class="label">New password <span class="hint">(min 8 characters)</span></label><input class="input" type="password" name="new_password" required /></div>
+      <div class="field"><label class="label">Confirm new password</label><input class="input" type="password" name="confirm_password" required /></div>
+      <button class="btn btn-primary">Update password</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

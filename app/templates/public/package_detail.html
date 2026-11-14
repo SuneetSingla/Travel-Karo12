@@ -1,0 +1,83 @@
+{% extends "base_public.html" %}
+{% block content %}
+
+{% if preview %}
+<div class="preview-banner container">
+  <span>👁 Admin preview — this is how the package looks to visitors.</span>
+  <a href="/admin/packages" class="btn btn-sm btn-light">Back to admin</a>
+</div>
+{% endif %}
+
+<section class="detail-hero">
+  <div class="detail-gallery">
+    {% if pkg.images %}
+      <img src="{{ pkg.images[0] }}" alt="{{ pkg.title }}" class="detail-main-img" id="mainImg" />
+      {% if pkg.images|length > 1 %}
+      <div class="detail-thumbs">
+        {% for img in pkg.images %}
+          <button type="button" class="detail-thumb" onclick="document.getElementById('mainImg').src='{{ img }}'">
+            <img src="{{ img }}" alt="{{ pkg.title }} photo {{ loop.index }}" loading="lazy" />
+          </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="detail-main-img pkg-card-placeholder">{{ pkg.destination or 'Travel Karo' }}</div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section pt-0">
+  <div class="container detail-grid">
+    <div class="detail-main">
+      {% if pkg.destination %}<span class="pkg-dest">{{ pkg.destination }}</span>{% endif %}
+      <h1 class="detail-title">{{ pkg.title }}</h1>
+      <div class="detail-meta">
+        {% if pkg.duration %}<span class="meta-chip">🗓 {{ pkg.duration }}</span>{% endif %}
+        {% if pkg.starting_price %}<span class="meta-chip">Starting ₹{{ "{:,.0f}".format(pkg.starting_price) }}</span>{% endif %}
+      </div>
+
+      {% if pkg.full_description %}
+        <div class="detail-block"><h2>Overview</h2><p>{{ pkg.full_description | replace('\n','<br>') | safe }}</p></div>
+      {% elif pkg.short_description %}
+        <div class="detail-block"><p>{{ pkg.short_description }}</p></div>
+      {% endif %}
+
+      {% if pkg.itinerary %}
+        <div class="detail-block"><h2>Itinerary</h2><p>{{ pkg.itinerary | replace('\n','<br>') | safe }}</p></div>
+      {% endif %}
+
+      {% set inc = pkg.included_services | as_list %}
+      {% if inc %}
+        <div class="detail-block"><h2>What's included</h2>
+          <ul class="tick-list">{% for i in inc %}<li>{{ i }}</li>{% endfor %}</ul>
+        </div>
+      {% endif %}
+
+      {% set exc = pkg.exclusions | as_list %}
+      {% if exc %}
+        <div class="detail-block"><h2>Not included</h2>
+          <ul class="cross-list">{% for i in exc %}<li>{{ i }}</li>{% endfor %}</ul>
+        </div>
+      {% endif %}
+
+      {% if pkg.additional_info %}
+        <div class="detail-block"><h2>Good to know</h2><p>{{ pkg.additional_info | replace('\n','<br>') | safe }}</p></div>
+      {% endif %}
+    </div>
+
+    <aside class="detail-side">
+      <div class="booking-card">
+        <h3>Interested in this package?</h3>
+        {% if pkg.starting_price %}<p class="booking-price">From ₹{{ "{:,.0f}".format(pkg.starting_price) }}<span>/ person onwards</span></p>{% endif %}
+        <p class="booking-note">Send an enquiry — our team will share details and confirm your booking personally. No online payment needed.</p>
+        {% if not preview %}
+        <a href="/contact?package={{ pkg.id }}" class="btn btn-primary btn-block">Book This Package</a>
+        {% endif %}
+        {% if biz.phone %}<a href="tel:{{ biz.phone | replace(' ','') }}" class="btn btn-outline btn-block">Call {{ biz.phone }}</a>{% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% endblock %}

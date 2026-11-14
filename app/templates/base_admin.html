@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title or "Travel Karo Admin" }}</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/static/img/logo-emblem.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="admin-body">
+  <input type="checkbox" id="sidebarToggle" class="sidebar-toggle-cb" />
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <img src="/static/img/logo-wordmark.png" alt="Travel Karo" />
+    </div>
+    <nav class="admin-nav">
+      <a href="/admin" class="admin-nav-link {% if active=='overview' %}is-active{% endif %}">
+        <span class="ic">▣</span> Overview</a>
+      <a href="/admin/packages" class="admin-nav-link {% if active=='packages' %}is-active{% endif %}">
+        <span class="ic">✈</span> Manage Packages</a>
+      <a href="/admin/enquiries" class="admin-nav-link {% if active=='enquiries' %}is-active{% endif %}">
+        <span class="ic">☎</span> Enquiries & CRM</a>
+      <a href="/admin/settings" class="admin-nav-link {% if active=='settings' %}is-active{% endif %}">
+        <span class="ic">⚙</span> Settings</a>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <a href="/" target="_blank" class="admin-nav-link subtle">↗ View website</a>
+      <a href="/admin/logout" class="admin-nav-link subtle">⏻ Log out</a>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <label for="sidebarToggle" class="sidebar-burger" aria-label="Toggle menu">☰</label>
+      <h1 class="admin-page-title">{{ heading or page_title | replace(' | Travel Karo Admin','') }}</h1>
+      <a href="/admin/packages/new" class="btn btn-primary btn-sm topbar-cta">+ Add Package</a>
+    </header>
+    <main class="admin-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

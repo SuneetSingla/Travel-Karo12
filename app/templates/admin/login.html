@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title or "Admin Login" }}</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/static/img/logo-emblem.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <img src="/static/img/logo-wordmark.png" alt="Travel Karo" class="login-logo" />
+    <h1 class="login-title">Admin Login</h1>
+    <p class="login-sub">Sign in to manage packages and enquiries.</p>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="post" action="/admin/login" class="login-form">
+      <div class="field"><label class="label">Email</label><input class="input" type="email" name="email" required autofocus /></div>
+      <div class="field"><label class="label">Password</label><input class="input" type="password" name="password" required /></div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Log in</button>
+    </form>
+    <a href="/" class="login-back">← Back to website</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<form method="post" action="/admin/packages/save" enctype="multipart/form-data" class="pkg-form panel">
+  {% if pkg %}<input type="hidden" name="package_id" value="{{ pkg.id }}" />{% endif %}
+
+  <div class="form-section">
+    <h2 class="form-section-title">Basics</h2>
+    <div class="field"><label class="label">Package Title *</label><input class="input" name="title" required value="{{ pkg.title if pkg else '' }}" placeholder="e.g. Magical Bali Getaway" /></div>
+    <div class="form-row">
+      <div class="field"><label class="label">Destination</label><input class="input" name="destination" value="{{ pkg.destination if pkg else '' }}" placeholder="e.g. Bali, Indonesia" /></div>
+      <div class="field"><label class="label">Duration</label><input class="input" name="duration" value="{{ pkg.duration if pkg else '' }}" placeholder="e.g. 5 Nights / 6 Days" /></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label class="label">Starting Price (₹)</label><input class="input" name="starting_price" value="{{ (pkg.starting_price|int) if (pkg and pkg.starting_price) else '' }}" placeholder="Optional, e.g. 45000" /></div>
+      <div class="field"></div>
+    </div>
+    <div class="field"><label class="label">Short Description</label><textarea class="input" name="short_description" rows="2" placeholder="One or two lines shown on package cards">{{ pkg.short_description if pkg else '' }}</textarea></div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="form-section-title">Details</h2>
+    <div class="field"><label class="label">Full Description</label><textarea class="input" name="full_description" rows="5">{{ pkg.full_description if pkg else '' }}</textarea></div>
+    <div class="field"><label class="label">Itinerary</label><textarea class="input" name="itinerary" rows="5" placeholder="Day 1: ...&#10;Day 2: ...">{{ pkg.itinerary if pkg else '' }}</textarea></div>
+    <div class="form-row">
+      <div class="field"><label class="label">Included Services <span class="hint">(one per line)</span></label><textarea class="input" name="included_services" rows="5" placeholder="Flights&#10;Hotels&#10;Breakfast">{{ pkg.included_services if pkg else '' }}</textarea></div>
+      <div class="field"><label class="label">Exclusions <span class="hint">(one per line)</span></label><textarea class="input" name="exclusions" rows="5" placeholder="Visa fees&#10;Personal expenses">{{ pkg.exclusions if pkg else '' }}</textarea></div>
+    </div>
+    <div class="field"><label class="label">Additional / Important Information</label><textarea class="input" name="additional_info" rows="3">{{ pkg.additional_info if pkg else '' }}</textarea></div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="form-section-title">Images</h2>
+    {% if pkg and pkg.images %}
+    <div class="img-manage">
+      {% for img in pkg.images %}
+      <label class="img-chip">
+        <img src="{{ img }}" alt="" />
+        <span class="img-remove"><input type="checkbox" name="remove_images" value="{{ img }}" /> Remove</span>
+      </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="field"><label class="label">Upload images <span class="hint">(JPG/PNG/WEBP, up to 5MB each — you can select several)</span></label>
+      <input class="input file" type="file" name="images" accept="image/*" multiple /></div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="form-section-title">Publication</h2>
+    <div class="status-choice">
+      <label class="radio-chip"><input type="radio" name="status" value="draft" {% if not pkg or pkg.status=='draft' %}checked{% endif %}/> <span>Draft <em>(hidden from website)</em></span></label>
+      <label class="radio-chip"><input type="radio" name="status" value="published" {% if pkg and pkg.status=='published' %}checked{% endif %}/> <span>Published <em>(visible on website)</em></span></label>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="/admin/packages" class="btn btn-ghost">Cancel</a>
+    <button type="submit" class="btn btn-primary btn-lg">{{ 'Save changes' if pkg else 'Save package' }}</button>
+  </div>
+</form>
+
+{% endblock %}

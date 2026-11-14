@@ -1,0 +1,87 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card"><span class="stat-label">Total enquiries</span><span class="stat-value">{{ stats.total }}</span></div>
+  <div class="stat-card accent-new"><span class="stat-label">New</span><span class="stat-value">{{ stats.new }}</span></div>
+  <div class="stat-card accent-pending"><span class="stat-label">Pending</span><span class="stat-value">{{ stats.pending }}</span></div>
+  <div class="stat-card accent-confirmed"><span class="stat-label">Confirmed</span><span class="stat-value">{{ stats.confirmed }}</span></div>
+  <div class="stat-card"><span class="stat-label">This month</span><span class="stat-value">{{ stats.this_month }}</span></div>
+  <div class="stat-card"><span class="stat-label">Published pkgs</span><span class="stat-value">{{ stats.published }}</span></div>
+  <div class="stat-card"><span class="stat-label">Drafts</span><span class="stat-value">{{ stats.unpublished }}</span></div>
+</div>
+
+<!-- FOLLOW-UPS -->
+{% if followups %}
+<div class="panel followup-panel">
+  <h2 class="panel-title">⏰ Follow-ups due ({{ followups|length }})</h2>
+  <div class="followup-list">
+    {% for f in followups %}
+    <a href="/admin/enquiries/{{ f.id }}" class="followup-item">
+      <span class="fu-name">{{ f.customer_name }}</span>
+      <span class="fu-date {% if f.follow_up_date < f.created_at.date() %}overdue{% endif %}">{{ f.follow_up_date.strftime('%d %b %Y') }}</span>
+      <span class="badge status-{{ f.status | replace(' ','-') | replace('/','') | lower }}">{{ f.status }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- CHARTS -->
+{% if stats.total > 0 %}
+<div class="chart-grid">
+  <div class="panel"><h2 class="panel-title">Enquiries over time</h2><canvas id="chartMonths" height="140"></canvas></div>
+  <div class="panel"><h2 class="panel-title">Enquiry status</h2><canvas id="chartStatus" height="140"></canvas></div>
+  <div class="panel chart-wide"><h2 class="panel-title">Enquiries by service</h2><canvas id="chartService" height="110"></canvas></div>
+</div>
+{% else %}
+<div class="panel empty-panel">
+  <h3>No enquiries yet</h3>
+  <p>When customers submit the contact form or a package booking, they'll appear here automatically with live charts.</p>
+</div>
+{% endif %}
+
+<!-- RECENT ACTIVITY -->
+<div class="panel">
+  <div class="panel-head">
+    <h2 class="panel-title">Recent enquiries</h2>
+    <a href="/admin/enquiries" class="btn btn-outline btn-sm">View all</a>
+  </div>
+  {% if recent %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for e in recent %}
+        <tr>
+          <td>{{ e.customer_name }}</td>
+          <td>{{ e.phone }}</td>
+          <td>{{ e.interested_service or (e.package_name and 'Package: ' ~ e.package_name) or '—' }}</td>
+          <td>{{ e.created_at.strftime('%d %b, %H:%M') }}</td>
+          <td><span class="badge status-{{ e.status | replace(' ','-') | replace('/','') | lower }}">{{ e.status }}</span></td>
+          <td><a href="/admin/enquiries/{{ e.id }}" class="link-open">Open →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">No enquiries yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+{% block scripts %}
+{% if stats.total > 0 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  window.TK_CHARTS = {
+    months:  { labels: {{ chart_months_labels | tojson }},  values: {{ chart_months_values | tojson }} },
+    status:  { labels: {{ chart_status_labels | tojson }},  values: {{ chart_status_values | tojson }} },
+    service: { labels: {{ chart_service_labels | tojson }}, values: {{ chart_service_values | tojson }} }
+  };
+</script>
+<script src="/static/js/admin.js"></script>
+{% endif %}
+{% endblock %}

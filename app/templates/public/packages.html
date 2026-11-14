@@ -1,0 +1,28 @@
+{% extends "base_public.html" %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <span class="hero-eyebrow">{{ tagline }}</span>
+    <h1 class="page-hero-title">Holiday Packages</h1>
+    <p class="page-hero-sub">Explore our thoughtfully planned trips. Found one you like? Book an enquiry and our team will take it from there.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if packages %}
+      <div class="pkg-grid">
+        {% for p in packages %}{% include "partials/package_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>New packages coming soon</h3>
+        <p>We're preparing exciting holiday packages. Tell us where you'd like to go and we'll plan a custom trip for you.</p>
+        <a href="/contact" class="btn btn-primary">Plan my trip</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
