@@ -13,7 +13,13 @@
     </div>
     <div class="form-row">
       <div class="field"><label class="label">Starting Price (₹)</label><input class="input" name="starting_price" value="{{ (pkg.starting_price|int) if (pkg and pkg.starting_price) else '' }}" placeholder="Optional, e.g. 45000" /></div>
-      <div class="field"></div>
+      <div class="field">
+        <label class="label">Category</label>
+        <div class="status-choice">
+          <label class="radio-chip"><input type="radio" name="category" value="domestic" {% if not pkg or pkg.category=='domestic' %}checked{% endif %}/> <span>🇮🇳 Domestic</span></label>
+          <label class="radio-chip"><input type="radio" name="category" value="international" {% if pkg and pkg.category=='international' %}checked{% endif %}/> <span>🌍 International</span></label>
+        </div>
+      </div>
     </div>
     <div class="field"><label class="label">Short Description</label><textarea class="input" name="short_description" rows="2" placeholder="One or two lines shown on package cards">{{ pkg.short_description if pkg else '' }}</textarea></div>
   </div>

@@ -1,15 +1,14 @@
-"""Public website routes: Home, Packages, Package detail, Contact + enquiry submit."""
-from datetime import datetime, date
+"""Public website routes: Home, Destinations, About, Contact + enquiry submit."""
+from datetime import datetime
 
 from fastapi import APIRouter, Request, Depends, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Package, Enquiry, SERVICES, ENQUIRY_SOURCES
+from ..models import Package, Enquiry, ClickEvent, SERVICES, CLICK_KINDS
 from ..templating import templates, base_context
-from ..utils import too_many_submissions
 
 router = APIRouter()
 
@@ -28,12 +27,12 @@ def published_packages(db: Session, limit: int | None = None):
 @router.get("/")
 def home(request: Request, db: Session = Depends(get_db)):
     ctx = base_context(request)
-    ctx["featured"] = published_packages(db, limit=6)
-    ctx["page_title"] = "Travel Karo — Holidays, Flights, Visas & More | Bathinda"
+    ctx["featured"] = published_packages(db, limit=4)
+    ctx["page_title"] = "Travel Karo — Your Journey, Our Passion | Bathinda Travel Agency"
     ctx["meta_description"] = (
-        "Travel Karo is a family-owned travel agency in Bathinda offering holiday "
-        "packages, air tickets, hotels, visas, cruises and travel insurance. "
-        "Let's make memories."
+        "Travel Karo, Bathinda — air tickets, hotels, visas, holiday packages, "
+        "cruises, insurance & IRCTC railway tickets. Explore domestic & "
+        "international destinations. Let's make memories."
     )
     return templates.TemplateResponse("public/home.html", ctx)
 
@@ -41,11 +40,14 @@ def home(request: Request, db: Session = Depends(get_db)):
 @router.get("/packages")
 def packages(request: Request, db: Session = Depends(get_db)):
     ctx = base_context(request)
-    ctx["packages"] = published_packages(db)
-    ctx["page_title"] = "Holiday Packages | Travel Karo"
+    pkgs = published_packages(db)
+    ctx["packages"] = pkgs
+    ctx["has_domestic"] = any(p.category == "domestic" for p in pkgs)
+    ctx["has_international"] = any(p.category == "international" for p in pkgs)
+    ctx["page_title"] = "Destinations & Holiday Packages | Travel Karo"
     ctx["meta_description"] = (
-        "Explore holiday packages from Travel Karo — thoughtfully planned trips with "
-        "seamless bookings and personalised assistance."
+        "Explore domestic and international destinations and holiday packages from "
+        "Travel Karo — tailored to your dates and budget."
     )
     return templates.TemplateResponse("public/packages.html", ctx)
 
@@ -64,6 +66,17 @@ def package_detail(package_id: int, request: Request, db: Session = Depends(get_
     return templates.TemplateResponse("public/package_detail.html", ctx)
 
 
+@router.get("/about")
+def about(request: Request):
+    ctx = base_context(request)
+    ctx["page_title"] = "About Us | Travel Karo"
+    ctx["meta_description"] = (
+        "Travel Karo is an IRCTC-authorised, GST-registered family travel agency in "
+        "Bathinda, offering personal service for flights, stays, visas and holidays."
+    )
+    return templates.TemplateResponse("public/about.html", ctx)
+
+
 @router.get("/contact")
 def contact(
     request: Request,
@@ -77,7 +90,8 @@ def contact(
     selected_package = db.get(Package, package) if package else None
     ctx.update(
         prefill_service=service if service in SERVICES else None,
-        selected_package=selected_package if (selected_package and selected_package.status == "published") else None,
+        selected_package=selected_package
+        if (selected_package and selected_package.status == "published") else None,
         sent=sent,
         page_title="Contact Us | Travel Karo",
         meta_description="Get in touch with Travel Karo, Bathinda — call, WhatsApp or send an enquiry and our team will help plan your trip.",
@@ -102,7 +116,8 @@ def submit_enquiry(
     company: str = Form(""),  # honeypot — real users never fill this
 ):
     """Handle every public enquiry → save it → it instantly becomes a CRM lead."""
-    # 1. Spam defences: honeypot + required fields + rate limit.
+    from ..utils import too_many_submissions  # local import keeps module load light
+
     if company.strip():
         return RedirectResponse("/contact?sent=1", status_code=303)  # silently drop bots
 
@@ -121,11 +136,7 @@ def submit_enquiry(
         ctx["page_title"] = "Contact Us | Travel Karo"
         return templates.TemplateResponse("public/contact.html", ctx, status_code=400)
 
-    # 2. Work out the enquiry source and linked package.
-    pkg = None
-    if package_id.strip().isdigit():
-        pkg = db.get(Package, int(package_id))
-
+    pkg = db.get(Package, int(package_id)) if package_id.strip().isdigit() else None
     if pkg is not None:
         source = "Package Booking"
     elif interested_service.strip():
@@ -133,7 +144,6 @@ def submit_enquiry(
     else:
         source = "Contact Form"
 
-    # 3. Parse optional values safely.
     t_date = None
     if travel_date.strip():
         try:
@@ -141,20 +151,13 @@ def submit_enquiry(
         except ValueError:
             t_date = None
 
-    travellers = None
-    if num_travellers.strip().isdigit():
-        travellers = int(num_travellers.strip())
+    travellers = int(num_travellers.strip()) if num_travellers.strip().isdigit() else None
 
-    service = interested_service.strip() if interested_service in SERVICES else (
-        interested_service.strip() or None
-    )
-
-    # 4. Save — this single insert is what makes it appear in the admin CRM.
     enquiry = Enquiry(
         customer_name=name,
         phone=phone_clean,
         email=email.strip() or None,
-        interested_service=service,
+        interested_service=interested_service.strip() or None,
         destination=destination.strip() or None,
         package_id=pkg.id if pkg else None,
         package_name=(pkg.title if pkg else (package_name.strip() or None)),
@@ -166,5 +169,23 @@ def submit_enquiry(
     )
     db.add(enquiry)
     db.commit()
-
     return RedirectResponse("/contact?sent=1", status_code=303)
+
+
+@router.post("/track")
+async def track_click(request: Request, db: Session = Depends(get_db)):
+    """Lightweight click tracking for website-performance insights.
+
+    Called from the public pages via navigator.sendBeacon when a visitor clicks
+    WhatsApp / Call / Book / Enquire etc. Stores no personal data.
+    """
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    kind = str(data.get("kind", "")).strip()
+    label = str(data.get("label", "")).strip()[:200] or None
+    if kind in CLICK_KINDS:
+        db.add(ClickEvent(kind=kind, label=label))
+        db.commit()
+    return Response(status_code=204)

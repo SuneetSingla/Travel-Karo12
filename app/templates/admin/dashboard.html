@@ -12,6 +12,47 @@
   <div class="stat-card"><span class="stat-label">Drafts</span><span class="stat-value">{{ stats.unpublished }}</span></div>
 </div>
 
+<!-- WEBSITE PERFORMANCE (reach + clicks) -->
+<div class="panel">
+  <div class="panel-head">
+    <h2 class="panel-title">📈 Website performance</h2>
+    <span class="muted sm">reach &amp; visitor actions</span>
+  </div>
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat-card"><span class="stat-label">Total page views</span><span class="stat-value">{{ perf.total_views }}</span></div>
+    <div class="stat-card"><span class="stat-label">Views (7 days)</span><span class="stat-value">{{ perf.views_7 }}</span></div>
+    <div class="stat-card"><span class="stat-label">Views (30 days)</span><span class="stat-value">{{ perf.views_30 }}</span></div>
+    <div class="stat-card accent-new"><span class="stat-label">Button clicks</span><span class="stat-value">{{ perf.total_clicks }}</span></div>
+  </div>
+
+  {% if perf.total_views > 0 %}
+  <canvas id="chartViews" height="90"></canvas>
+  {% else %}
+  <p class="muted">No visits recorded yet. Once your site is live, visitor numbers and the pages they view will appear here.</p>
+  {% endif %}
+
+  <div class="chart-grid" style="margin-top:20px">
+    <div>
+      <h3 class="panel-title" style="font-size:.95rem">Most visited pages</h3>
+      {% if top_pages %}
+      <table class="data-table"><tbody>
+        {% for name, count in top_pages %}
+        <tr><td>{{ name }}</td><td style="text-align:right;font-weight:600">{{ count }}</td></tr>
+        {% endfor %}
+      </tbody></table>
+      {% else %}<p class="muted sm">No data yet.</p>{% endif %}
+    </div>
+    <div>
+      <h3 class="panel-title" style="font-size:.95rem">Visitor actions (clicks)</h3>
+      <table class="data-table"><tbody>
+        {% for label, count in clicks.items() %}
+        <tr><td>{{ label }}</td><td style="text-align:right;font-weight:600">{{ count }}</td></tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
 <!-- FOLLOW-UPS -->
 {% if followups %}
 <div class="panel followup-panel">
@@ -73,13 +114,14 @@
 
 {% endblock %}
 {% block scripts %}
-{% if stats.total > 0 %}
+{% if stats.total > 0 or perf.total_views > 0 %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
   window.TK_CHARTS = {
     months:  { labels: {{ chart_months_labels | tojson }},  values: {{ chart_months_values | tojson }} },
     status:  { labels: {{ chart_status_labels | tojson }},  values: {{ chart_status_values | tojson }} },
-    service: { labels: {{ chart_service_labels | tojson }}, values: {{ chart_service_values | tojson }} }
+    service: { labels: {{ chart_service_labels | tojson }}, values: {{ chart_service_values | tojson }} },
+    views:   { labels: {{ views_labels | tojson }},         values: {{ views_values | tojson }} }
   };
 </script>
 <script src="/static/js/admin.js"></script>

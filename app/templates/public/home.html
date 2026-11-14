@@ -3,103 +3,90 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-overlay"></div>
-  <div class="container hero-inner">
-    <span class="hero-eyebrow">{{ tagline }}</span>
-    <h1 class="hero-title">Your Journey Begins With Travel Karo</h1>
-    <p class="hero-sub">Discover the world with thoughtfully planned holidays, seamless bookings and personalised travel assistance. Let's make memories together.</p>
-    <div class="hero-cta">
-      <a href="/packages" class="btn btn-primary btn-lg">Explore Packages</a>
-      <a href="/contact" class="btn btn-light btn-lg">Book a Package</a>
-    </div>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="section">
-  <div class="container about-grid">
+  <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow">About Travel Karo</span>
-      <h2 class="section-title">A family that loves planning your travels</h2>
-      <p class="lead">Travel Karo is a family-owned travel agency based in Bathinda, helping travellers plan memorable journeys across India and around the world.</p>
-      <p>From flights and hotels to complete holiday packages, visas, cruises and travel insurance, we take care of the details so you can focus on the experience. Friendly guidance, honest advice and personal attention are at the heart of how we work.</p>
-      <a href="/contact" class="btn btn-outline">Talk to us</a>
+      <span class="pill"><span class="dot"></span> IRCTC Authorised &nbsp;•&nbsp; GST Registered Agency</span>
+      <h1>Travel the world,<br><span class="accent">we'll handle the rest.</span></h1>
+      <p class="lead">From international air tickets to dream holiday packages, Travel Karo makes every journey simple, affordable and stress-free — all from the heart of Bathinda.</p>
+      <div class="hero-cta">
+        <a class="btn" href="/packages">Explore Destinations
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 9h10M10 4l5 5-5 5"/></svg></a>
+        <a class="btn btn-ghost" href="/contact">Plan My Trip</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>7+</b><span>Travel Services</span></div>
+        <div class="stat"><b>Domestic &amp; Intl</b><span>Destinations</span></div>
+        <div class="stat"><b>24/7</b><span>On WhatsApp</span></div>
+      </div>
     </div>
-    <div class="about-emblem">
-      <img src="/static/img/logo-emblem.jpg" alt="Travel Karo" />
+    <div class="hero-visual">
+      <div class="glowcard"><img src="/static/img/logo-emblem.jpg" alt="Travel Karo" width="420" /></div>
     </div>
   </div>
 </section>
 
 <!-- SERVICES -->
-<section class="section section-soft">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">What we offer</span>
-      <h2 class="section-title">Our Services</h2>
-      <p class="section-intro">Everything you need for a smooth trip, under one roof.</p>
-    </div>
+<section class="pad-sm">
+  <div class="wrap">
+    <p class="eyebrow">What We Offer</p>
+    <h2 class="sec-title">Everything for your perfect trip</h2>
+    <p class="sec-sub">One trusted agency for all your travel needs — booked right, priced fair.</p>
     {% include "partials/services.html" %}
   </div>
 </section>
 
-<!-- FEATURED PACKAGES -->
-<section class="section">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Handpicked trips</span>
-      <h2 class="section-title">Explore Our Holiday Packages</h2>
-    </div>
+<!-- TRENDING DESTINATIONS (dynamic) -->
+<section class="why pad-sm">
+  <div class="wrap">
+    <p class="eyebrow">Popular Right Now</p>
+    <h2 class="sec-title">Trending destinations</h2>
+    <p class="sec-sub">A taste of where we can take you — explore the full list on our Destinations page.</p>
     {% if featured %}
-      <div class="pkg-grid">
+      <div class="dest-grid">
         {% for p in featured %}{% include "partials/package_card.html" %}{% endfor %}
       </div>
-      <div class="center mt-32"><a href="/packages" class="btn btn-outline">View all packages</a></div>
+      <div style="text-align:center;margin-top:40px"><a class="btn" href="/packages">View All Destinations
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 9h10M10 4l5 5-5 5"/></svg></a></div>
     {% else %}
       <div class="empty-state">
-        <h3>New packages coming soon</h3>
-        <p>We're putting together exciting holiday packages. In the meantime, tell us where you'd like to go and we'll plan it for you.</p>
-        <a href="/contact" class="btn btn-primary">Enquire about a trip</a>
+        <h3>New destinations coming soon</h3>
+        <p>We're putting together exciting domestic and international packages. Tell us where you'd like to go and we'll plan it for you.</p>
+        <a href="/contact" class="btn">Enquire about a trip</a>
       </div>
     {% endif %}
   </div>
 </section>
 
-<!-- WHY CHOOSE -->
-<section class="section section-dark">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow light">Why Travel Karo</span>
-      <h2 class="section-title light">Travel made simple and personal</h2>
+<!-- WHY -->
+<section>
+  <div class="wrap why-grid">
+    <div>
+      <p class="eyebrow left">Why Travel Karo</p>
+      <h2>Personal service you <span class="accent">won't get online</span></h2>
+      <p class="intro">Booking portals give you a screen. We give you a real person in Bathinda who knows travel, answers your calls, and sorts things out when plans change.</p>
+      <div class="feat"><div class="chk"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div><div><b>Best-value fares</b><p>We compare options so you don't overpay for flights, stays or packages.</p></div></div>
+      <div class="feat"><div class="chk"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div><div><b>One point of contact</b><p>Tickets, hotels, visa and insurance — all handled by one trusted agent.</p></div></div>
+      <div class="feat"><div class="chk"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div><div><b>Always reachable</b><p>A quick WhatsApp or call is all it takes — no call centres, no waiting.</p></div></div>
     </div>
-    <div class="why-grid">
-      <div class="why-card">
-        <h3>Personalised planning</h3>
-        <p>We tailor every trip to your dates, budget and style — not a one-size-fits-all package.</p>
-      </div>
-      <div class="why-card">
-        <h3>One point of contact</h3>
-        <p>Flights, hotels, visas and insurance handled together, so you deal with one friendly team.</p>
-      </div>
-      <div class="why-card">
-        <h3>Family-run care</h3>
-        <p>You're looked after personally, with honest guidance from people who love travel.</p>
-      </div>
-      <div class="why-card">
-        <h3>End-to-end support</h3>
-        <p>From the first enquiry to your return home, we're here to help at every step.</p>
-      </div>
-    </div>
+    <div class="why-visual"><div class="glass">
+      <h4>Your trip, fully handled ✈️</h4>
+      <p style="margin-bottom:12px;opacity:.92">A sample of what one booking covers:</p>
+      <div class="row"><span>Flights</span><span>✓ Booked</span></div>
+      <div class="row"><span>Hotel &amp; transfers</span><span>✓ Booked</span></div>
+      <div class="row"><span>Visa assistance</span><span>✓ In progress</span></div>
+      <div class="row"><span>Travel insurance</span><span>✓ Added</span></div>
+    </div></div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-band">
-  <div class="container cta-inner">
-    <h2>Ready to Plan Your Next Adventure?</h2>
-    <p>Tell us your dream destination and we'll take care of the rest.</p>
-    <a href="/contact" class="btn btn-light btn-lg">Contact Travel Karo</a>
+<!-- BAND CTA -->
+<section class="pad-sm"><div class="wrap"><div class="band">
+  <h2>Ready to plan your next journey?</h2>
+  <p>Tell us where you want to go. We'll put together the best options for your dates and budget.</p>
+  <div class="hero-cta">
+    <a href="https://wa.me/{{ wa_number }}?text=Hi%20Travel%20Karo,%20I'd%20like%20to%20plan%20a%20trip." class="btn wa" target="_blank" rel="noopener" data-track="whatsapp"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.611 5.367l-.999 3.648 3.886-1.314z"/></svg>Chat on WhatsApp</a>
+    <a href="tel:{{ biz.phone | replace(' ','') }}" class="btn btn-ghost" data-track="call" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.35)">Call {{ biz.phone }}</a>
   </div>
-</section>
+</div></div></section>
 
 {% endblock %}

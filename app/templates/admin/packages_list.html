@@ -17,7 +17,7 @@
     </div>
     <div class="pkg-admin-body">
       <h3>{{ p.title }}</h3>
-      <p class="muted sm">{{ p.destination or '—' }}{% if p.duration %} · {{ p.duration }}{% endif %}{% if p.starting_price %} · ₹{{ "{:,.0f}".format(p.starting_price) }}{% endif %}</p>
+      <p class="muted sm">{{ 'Domestic' if p.category=='domestic' else 'International' }}{% if p.destination %} · {{ p.destination }}{% endif %}{% if p.duration %} · {{ p.duration }}{% endif %}{% if p.starting_price %} · ₹{{ "{:,.0f}".format(p.starting_price) }}{% endif %}</p>
       <div class="pkg-admin-actions">
         <a href="/admin/packages/{{ p.id }}/edit" class="btn btn-outline btn-xs">Edit</a>
         <a href="/admin/packages/{{ p.id }}/preview" target="_blank" class="btn btn-ghost btn-xs">Preview</a>

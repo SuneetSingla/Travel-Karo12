@@ -21,14 +21,17 @@ LEAD_STATUSES = (
     "Closed / Not Interested",
 )
 SERVICES = (
-    "International & Domestic Travel",
     "Air Tickets",
-    "Holiday Packages",
     "Hotel Booking",
     "Visa Services",
+    "Holiday Packages",
     "Cruise Bookings",
     "Travel Insurance",
+    "Railway Tickets",
 )
+PACKAGE_CATEGORIES = ("domestic", "international")
+# Allowed click-event kinds tracked for website performance insights.
+CLICK_KINDS = ("whatsapp", "call", "book", "enquire", "view_package", "map")
 
 
 class Admin(Base):
@@ -48,6 +51,8 @@ class Package(Base):
     full_description: Mapped[str | None] = mapped_column(Text)
     duration: Mapped[str | None] = mapped_column(String(120))
     starting_price: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    # "domestic" or "international" — decides which tab it shows under.
+    category: Mapped[str] = mapped_column(String(20), default="domestic", index=True)
     included_services: Mapped[str | None] = mapped_column(Text)  # one item per line
     exclusions: Mapped[str | None] = mapped_column(Text)         # one item per line
     itinerary: Mapped[str | None] = mapped_column(Text)
@@ -121,3 +126,21 @@ class BusinessSettings(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )
+
+
+class PageView(Base):
+    """One row per public page visit — powers the 'website reach' insights."""
+    __tablename__ = "page_views"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    path: Mapped[str] = mapped_column(String(200), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)
+
+
+class ClickEvent(Base):
+    """One row per tracked click (WhatsApp, Call, Book, Enquire...) — powers
+    the 'website performance / clicks' insights."""
+    __tablename__ = "click_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(40), index=True)
+    label: Mapped[str | None] = mapped_column(String(200))  # e.g. package name
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), index=True)

@@ -1,100 +1,85 @@
 {% extends "base_public.html" %}
 {% block content %}
 
-<section class="page-hero">
-  <div class="container">
-    <span class="hero-eyebrow">{{ tagline }}</span>
-    <h1 class="page-hero-title">Contact Us</h1>
-    <p class="page-hero-sub">Have a trip in mind? Send us your details and our team will get back to you.</p>
-  </div>
-</section>
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Get In Touch</p>
+    <h2 class="sec-title">Let's start planning</h2>
+    <p class="sec-sub">Send us a quick enquiry, or reach out directly — we usually reply the same day.</p>
 
-<section class="section">
-  <div class="container contact-grid">
-
-    <!-- LEFT: details + map -->
-    <div class="contact-info">
-      <h2 class="section-title sm">Get in touch</h2>
-      <ul class="contact-list">
-        {% if biz.address %}<li><strong>Address</strong><span>{{ biz.address }}</span></li>{% endif %}
-        {% if biz.phone %}<li><strong>Phone</strong><a href="tel:{{ biz.phone | replace(' ','') }}">{{ biz.phone }}</a></li>{% endif %}
-        {% if biz.email %}<li><strong>Email</strong><a href="mailto:{{ biz.email }}">{{ biz.email }}</a></li>{% endif %}
-        {% if biz.website %}<li><strong>Website</strong><a href="https://{{ biz.website | replace('https://','') | replace('http://','') }}" target="_blank" rel="noopener">{{ biz.website }}</a></li>{% endif %}
-      </ul>
-      <div class="contact-social">
-        {% if biz.phone %}<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="https://wa.me/{{ biz.phone | replace(' ','') | replace('+','') | replace('-','') }}">WhatsApp us</a>{% endif %}
-        {% if biz.instagram %}<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href="{{ biz.instagram }}">Instagram</a>{% endif %}
-        {% if biz.facebook %}<a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href="{{ biz.facebook }}">Facebook</a>{% endif %}
+    <div class="contact-grid">
+      <!-- LEFT: details + map -->
+      <div class="cinfo">
+        {% if biz.address %}
+        <div class="item"><div class="ci"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><b>Visit Us</b><span>{{ biz.address }}</span></div></div>
+        {% endif %}
+        {% if biz.phone %}
+        <div class="item"><div class="ci"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.6A2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8 9.6a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg></div><div><b>Call / WhatsApp</b><a href="tel:{{ biz.phone | replace(' ','') }}" data-track="call">{{ biz.phone }}</a></div></div>
+        {% endif %}
+        {% if biz.email %}
+        <div class="item"><div class="ci"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg></div><div><b>Email</b><a href="mailto:{{ biz.email }}">{{ biz.email }}</a></div></div>
+        {% endif %}
+        <div class="item"><div class="ci"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20"/></svg></div><div><b>Follow Us</b><span>
+          {% if biz.instagram %}<a href="{{ biz.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+          {% if biz.facebook %} &nbsp;·&nbsp; <a href="{{ biz.facebook }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
+        </span></div></div>
+        {% if biz.address %}
+        <div class="map-embed">
+          <iframe title="Travel Karo location" src="https://www.google.com/maps?q={{ biz.address | urlencode }}&output=embed" width="100%" height="240" style="border:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        {% endif %}
       </div>
-      <div class="map-embed">
-        <iframe
-          title="Travel Karo location"
-          src="https://www.google.com/maps?q={{ biz.address | urlencode }}&output=embed"
-          width="100%" height="280" style="border:0" loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </div>
 
-    <!-- RIGHT: enquiry form -->
-    <div class="contact-form-wrap" id="enquiry">
-      {% if sent %}
+      <!-- RIGHT: enquiry form (saved to CRM) -->
+      <div>
+        {% if sent %}
         <div class="alert alert-success">
           <strong>Thank you! 🎉</strong>
-          <p>Your enquiry has reached the Travel Karo team. We'll contact you shortly — no need to email or call separately.</p>
-          <a href="/packages" class="btn btn-outline btn-sm">Browse more packages</a>
+          Your enquiry has reached the Travel Karo team. We'll contact you shortly — no need to email or call separately.
         </div>
-      {% endif %}
-      {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
-
-      <form method="post" action="/enquiry" class="enquiry-form">
-        {% if selected_package %}
-          <div class="selected-pkg">
-            <span>Booking enquiry for</span>
-            <strong>{{ selected_package.title }}</strong>
-          </div>
-          <input type="hidden" name="package_id" value="{{ selected_package.id }}" />
         {% endif %}
+        {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
 
-        <!-- honeypot: hidden from humans, bots fill it in -->
-        <div class="hp"><label>Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label></div>
+        <form class="form" method="post" action="/enquiry" id="enquiry">
+          {% if selected_package %}
+            <div class="selected-pkg"><span>Booking enquiry for</span><strong>{{ selected_package.title }}</strong></div>
+            <input type="hidden" name="package_id" value="{{ selected_package.id }}" />
+          {% endif %}
+          <div class="hp"><label>Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label></div>
 
-        <div class="form-row">
-          <div class="field"><label class="label">Full Name *</label><input class="input" type="text" name="customer_name" required /></div>
-          <div class="field"><label class="label">Phone Number *</label><input class="input" type="tel" name="phone" required /></div>
-        </div>
-
-        <div class="form-row">
-          <div class="field"><label class="label">Email Address</label><input class="input" type="email" name="email" /></div>
-          <div class="field">
-            <label class="label">Service Interested In</label>
-            <select class="input" name="interested_service">
-              <option value="">Select a service</option>
-              {% for s in services %}
-              <option value="{{ s }}" {% if prefill_service == s %}selected{% endif %}>{{ s }}</option>
-              {% endfor %}
-            </select>
+          <div class="form-row">
+            <div><label>Full Name *</label><input type="text" name="customer_name" required placeholder="Your name" /></div>
+            <div><label>Phone Number *</label><input type="tel" name="phone" required placeholder="Your mobile number" /></div>
           </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field"><label class="label">Destination</label><input class="input" type="text" name="destination" placeholder="e.g. Dubai, Manali, Bali" /></div>
-          <div class="field"><label class="label">Travel Date</label><input class="input" type="date" name="travel_date" /></div>
-        </div>
-
-        <div class="form-row">
-          <div class="field"><label class="label">Number of Travellers</label><input class="input" type="number" min="1" name="num_travellers" /></div>
-          <div class="field"></div>
-        </div>
-
-        <div class="field"><label class="label">Message / Requirements</label><textarea class="input" name="message" rows="4" placeholder="Tell us about your trip..."></textarea></div>
-
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Submit Enquiry</button>
-      </form>
+          <div class="form-row">
+            <div><label>Email</label><input type="email" name="email" placeholder="Optional" /></div>
+            <div><label>Interested In</label>
+              <select name="interested_service">
+                <option value="">Select a service</option>
+                {% for s in services %}<option value="{{ s }}" {% if prefill_service == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div><label>Destination</label><input type="text" name="destination" placeholder="e.g. Dubai, Manali, Bali" /></div>
+            <div><label>Travel Date</label><input type="date" name="travel_date" /></div>
+          </div>
+          <div class="form-row">
+            <div><label>Number of Travellers</label><input type="number" min="1" name="num_travellers" /></div>
+            <div></div>
+          </div>
+          <label>Message / Requirements</label>
+          <textarea name="message" rows="3" placeholder="Where would you like to go, and when?"></textarea>
+          <button type="submit" class="btn">Submit Enquiry
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 9h10M10 4l5 5-5 5"/></svg></button>
+          <p class="form-note">We'll get back to you on phone or WhatsApp.</p>
+        </form>
+      </div>
     </div>
   </div>
 </section>
 
 {% endblock %}
 {% block scripts %}
-{% if sent %}<script>document.getElementById('enquiry').scrollIntoView();</script>{% endif %}
+{% if sent %}<script>document.getElementById('enquiry').scrollIntoView({behavior:'smooth'});</script>{% endif %}
 {% endblock %}

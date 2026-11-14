@@ -17,6 +17,26 @@ from .routers import public, admin
 Base.metadata.create_all(bind=engine)
 
 
+def _ensure_columns() -> None:
+    """Add newer columns to an existing database if they're missing.
+
+    Lets a database created by an earlier version keep working without a manual
+    migration. New tables are handled by create_all above.
+    """
+    from sqlalchemy import text, inspect
+    inspector = inspect(engine)
+    try:
+        cols = {c["name"] for c in inspector.get_columns("packages")}
+    except Exception:
+        return
+    if "category" not in cols:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE packages ADD COLUMN category VARCHAR(20) DEFAULT 'domestic'"))
+
+
+_ensure_columns()
+
+
 def ensure_business_settings_row() -> None:
     """Make sure the single editable business-info row exists with defaults."""
     db = SessionLocal()
@@ -54,6 +74,37 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.include_router(public.router)
 app.include_router(admin.router)
+
+
+# --- Website reach tracking -------------------------------------------------
+# Record a page view for each public page a visitor opens. Admin, static files,
+# uploads and the tracking endpoint itself are ignored.
+_TRACKED_EXACT = {"/", "/packages", "/about", "/contact"}
+
+
+def _is_tracked(path: str) -> bool:
+    if path in _TRACKED_EXACT:
+        return True
+    if path.startswith("/packages/") and path[len("/packages/"):].isdigit():
+        return True
+    return False
+
+
+@app.middleware("http")
+async def record_page_view(request: Request, call_next):
+    response = await call_next(request)
+    try:
+        if request.method == "GET" and response.status_code < 400 and _is_tracked(request.url.path):
+            from .models import PageView
+            db = SessionLocal()
+            try:
+                db.add(PageView(path=request.url.path))
+                db.commit()
+            finally:
+                db.close()
+    except Exception:
+        pass  # analytics must never break a page load
+    return response
 
 
 # --- SEO: robots.txt and sitemap.xml ---------------------------------------

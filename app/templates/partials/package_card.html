@@ -1,24 +1,17 @@
-<article class="pkg-card">
-  <a href="/packages/{{ p.id }}" class="pkg-card-media">
-    {% if p.cover_image %}
-      <img src="{{ p.cover_image }}" alt="{{ p.title }}" loading="lazy" />
-    {% else %}
-      <div class="pkg-card-placeholder">{{ p.destination or 'Travel Karo' }}</div>
-    {% endif %}
-    {% if p.duration %}<span class="pkg-badge">{{ p.duration }}</span>{% endif %}
-  </a>
-  <div class="pkg-card-body">
-    {% if p.destination %}<span class="pkg-dest">{{ p.destination }}</span>{% endif %}
-    <h3 class="pkg-title">{{ p.title }}</h3>
-    {% if p.short_description %}<p class="pkg-desc">{{ p.short_description }}</p>{% endif %}
-    <div class="pkg-card-foot">
-      {% if p.starting_price %}
-        <span class="pkg-price">From ₹{{ "{:,.0f}".format(p.starting_price) }}</span>
-      {% else %}<span></span>{% endif %}
-      <div class="pkg-actions">
-        <a href="/packages/{{ p.id }}" class="btn btn-outline btn-sm">View Details</a>
-        <a href="/contact?package={{ p.id }}" class="btn btn-primary btn-sm">Book</a>
-      </div>
+<div class="dest" data-category="{{ p.category }}">
+  <div class="scene">
+    {% if p.cover_image %}<img src="{{ p.cover_image }}" alt="{{ p.title }}" loading="lazy" />
+    {% else %}<div class="ph">{{ p.destination or p.title }}</div>{% endif %}
+    <span class="chip">{{ 'Domestic' if p.category == 'domestic' else 'International' }}</span>
+    {% if p.duration %}<span class="dur">{{ p.duration }}</span>{% endif %}
+  </div>
+  <div class="body">
+    <h4>{{ p.title }}</h4>
+    {% if p.starting_price %}<span class="price">From ₹{{ "{:,.0f}".format(p.starting_price) }}</span>{% endif %}
+    <p>{{ p.short_description or (p.destination and ('Explore ' ~ p.destination)) or 'Tailored to your dates and budget.' }}</p>
+    <div class="actions">
+      <a class="btn btn-sm" href="/packages/{{ p.id }}" data-track="view_package" data-label="{{ p.title }}">View Details</a>
+      <a class="btn btn-sm btn-outline" href="/contact?package={{ p.id }}" data-track="book" data-label="{{ p.title }}">Book</a>
     </div>
   </div>
-</article>
+</div>

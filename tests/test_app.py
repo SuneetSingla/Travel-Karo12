@@ -18,7 +18,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.database import SessionLocal
-from app.models import Admin, Enquiry, Package
+from app.models import Admin, Enquiry, Package, PageView, ClickEvent
 from app.auth import hash_password
 
 # Seed a known admin.
@@ -41,6 +41,8 @@ def ok(label, cond):
 ok("home loads", c.get("/").status_code == 200)
 ok("packages loads", c.get("/packages").status_code == 200)
 ok("contact loads", c.get("/contact").status_code == 200)
+ok("about loads", c.get("/about").status_code == 200)
+ok("page view recorded", SessionLocal().query(PageView).count() > 0)
 ok("robots disallows admin", "Disallow: /admin" in c.get("/robots.txt").text)
 ok("sitemap generated", "<urlset" in c.get("/sitemap.xml").text)
 
@@ -69,11 +71,13 @@ ok("enquiries list after login", c.get("/admin/enquiries").status_code == 200)
 img = io.BytesIO(); Image.new("RGB", (800, 500), (90, 50, 154)).save(img, "PNG"); img.seek(0)
 r = c.post("/admin/packages/save",
            data={"title": "Magical Bali", "destination": "Bali", "duration": "5N/6D",
-                 "starting_price": "45000", "short_description": "Beaches", "status": "published"},
+                 "starting_price": "45000", "short_description": "Beaches",
+                 "category": "international", "status": "published"},
            files={"images": ("bali.png", img, "image/png")})
 ok("package saved", r.status_code == 303)
 p = SessionLocal(); pkg = p.query(Package).order_by(Package.id.desc()).first(); pid = pkg.id
 ok("package has image", len(pkg.images) == 1)
+ok("package category saved", pkg.category == "international")
 ok("package published", pkg.status == "published"); p.close()
 
 ok("published pkg public", "Magical Bali" in c.get("/packages").text)
@@ -98,6 +102,23 @@ g = SessionLocal()
 ok("package deleted", g.get(Package, pid) is None)
 ok("booking lead survives delete", g.query(Enquiry).filter(Enquiry.customer_name == "Booker").first() is not None)
 g.close()
+
+# 12. click tracking records an event
+n_clicks = SessionLocal().query(ClickEvent).count()
+c.post("/track", json={"kind": "whatsapp", "label": "test"})
+ok("click event tracked", SessionLocal().query(ClickEvent).count() == n_clicks + 1)
+c.post("/track", json={"kind": "not_a_real_kind"})
+ok("invalid click kind ignored", SessionLocal().query(ClickEvent).count() == n_clicks + 1)
+
+# 13. admin can change login email
+r = c.post("/admin/settings/email", data={"new_email": "owner@travelkaro.net", "current_password": "password123"})
+ok("email change redirects ok", "eml=ok" in r.headers.get("location", ""))
+ok("email updated", SessionLocal().query(Admin).filter(Admin.email == "owner@travelkaro.net").first() is not None)
+r = c.post("/admin/settings/email", data={"new_email": "x@y.com", "current_password": "WRONG"})
+ok("email change needs correct password", "eml=wrong" in r.headers.get("location", ""))
+
+# 14. dashboard renders with analytics present
+ok("dashboard renders with analytics", c.get("/admin").status_code == 200)
 
 os.unlink(_tmp.name)
 print(f"\n{passed} checks passed ✅")

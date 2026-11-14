@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import (
-    Package, Enquiry, EnquiryNote, BusinessSettings, Admin,
-    PACKAGE_STATUSES, LEAD_STATUSES, SERVICES,
+    Package, Enquiry, EnquiryNote, BusinessSettings, Admin, PageView, ClickEvent,
+    PACKAGE_STATUSES, PACKAGE_CATEGORIES, LEAD_STATUSES, SERVICES, CLICK_KINDS,
 )
 from ..templating import templates, base_context
 from ..auth import require_admin, get_current_admin, verify_password, hash_password
@@ -103,6 +103,45 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin: Admin = De
             select(func.count(Enquiry.id)).where(Enquiry.status == s)
         ) or 0
 
+    # --- Website performance (reach + clicks) -------------------------
+    total_views = db.scalar(select(func.count(PageView.id))) or 0
+    views_7 = db.scalar(
+        select(func.count(PageView.id)).where(PageView.created_at >= datetime.now() - timedelta(days=7))
+    ) or 0
+    views_30 = db.scalar(
+        select(func.count(PageView.id)).where(PageView.created_at >= datetime.now() - timedelta(days=30))
+    ) or 0
+
+    # Views per day for the last 14 days.
+    days = OrderedDict()
+    for i in range(13, -1, -1):
+        d = date.today() - timedelta(days=i)
+        days[d.strftime("%d %b")] = 0
+    for v in db.scalars(select(PageView).where(PageView.created_at >= datetime.now() - timedelta(days=14))).all():
+        key = v.created_at.strftime("%d %b")
+        if key in days:
+            days[key] += 1
+
+    # Top pages.
+    page_names = {"/": "Home", "/packages": "Destinations", "/about": "About", "/contact": "Contact"}
+    page_counts = {}
+    for v in db.scalars(select(PageView)).all():
+        label = page_names.get(v.path)
+        if label is None:
+            label = "Package detail" if v.path.startswith("/packages/") else v.path
+        page_counts[label] = page_counts.get(label, 0) + 1
+    top_pages = sorted(page_counts.items(), key=lambda kv: kv[1], reverse=True)[:6]
+
+    # Clicks by type.
+    click_labels = {"whatsapp": "WhatsApp", "call": "Call", "book": "Book package",
+                    "enquire": "Service enquiry", "view_package": "View details", "map": "Map"}
+    clicks = {}
+    for k in CLICK_KINDS:
+        clicks[click_labels[k]] = db.scalar(
+            select(func.count(ClickEvent.id)).where(ClickEvent.kind == k)
+        ) or 0
+    total_clicks = sum(clicks.values())
+
     recent = db.scalars(select(Enquiry).order_by(Enquiry.created_at.desc()).limit(8)).all()
 
     # Follow-ups due (today or overdue, still open)
@@ -128,6 +167,12 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin: Admin = De
         chart_status_values=list(by_status.values()),
         recent=recent,
         followups=followups,
+        perf=dict(total_views=total_views, views_7=views_7, views_30=views_30,
+                  total_clicks=total_clicks),
+        views_labels=list(days.keys()),
+        views_values=list(days.values()),
+        top_pages=top_pages,
+        clicks=clicks,
         active="overview",
         page_title="Dashboard | Travel Karo Admin",
     )
@@ -183,6 +228,7 @@ async def save_package(
     full_description: str = Form(""),
     duration: str = Form(""),
     starting_price: str = Form(""),
+    category: str = Form("domestic"),
     included_services: str = Form(""),
     exclusions: str = Form(""),
     itinerary: str = Form(""),
@@ -203,6 +249,7 @@ async def save_package(
     pkg.full_description = full_description.strip() or None
     pkg.duration = duration.strip() or None
     pkg.starting_price = _parse_price(starting_price)
+    pkg.category = category if category in PACKAGE_CATEGORIES else "domestic"
     pkg.included_services = included_services.strip() or None
     pkg.exclusions = exclusions.strip() or None
     pkg.itinerary = itinerary.strip() or None
@@ -355,9 +402,11 @@ def delete_enquiry(enquiry_id: int, request: Request, db: Session = Depends(get_
 # SETTINGS
 # ======================================================================
 @router.get("/settings")
-def settings_page(request: Request, db: Session = Depends(get_db), admin: Admin = Depends(require_admin), saved: str = "", pwd: str = ""):
+def settings_page(request: Request, db: Session = Depends(get_db), admin: Admin = Depends(require_admin),
+                  saved: str = "", pwd: str = "", eml: str = ""):
     ctx = base_context(request)
-    ctx.update(active="settings", saved=saved, pwd=pwd, page_title="Settings | Travel Karo Admin")
+    ctx.update(active="settings", saved=saved, pwd=pwd, eml=eml,
+               admin_email=admin.email, page_title="Settings | Travel Karo Admin")
     return templates.TemplateResponse("admin/settings.html", ctx)
 
 
@@ -382,6 +431,27 @@ def update_settings(
     biz.facebook = facebook.strip() or None
     db.commit()
     return RedirectResponse("/admin/settings?saved=1", status_code=303)
+
+
+@router.post("/settings/email")
+def change_email(
+    request: Request,
+    db: Session = Depends(get_db),
+    admin: Admin = Depends(require_admin),
+    new_email: str = Form(...),
+    current_password: str = Form(...),
+):
+    new_email = new_email.strip().lower()
+    if not verify_password(current_password, admin.password_hash):
+        return RedirectResponse("/admin/settings?eml=wrong", status_code=303)
+    if "@" not in new_email or "." not in new_email:
+        return RedirectResponse("/admin/settings?eml=invalid", status_code=303)
+    clash = db.scalar(select(Admin).where(Admin.email == new_email, Admin.id != admin.id))
+    if clash:
+        return RedirectResponse("/admin/settings?eml=taken", status_code=303)
+    admin.email = new_email
+    db.commit()
+    return RedirectResponse("/admin/settings?eml=ok", status_code=303)
 
 
 @router.post("/settings/password")

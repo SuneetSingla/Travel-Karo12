@@ -1,29 +1,29 @@
-// Public site: mobile nav toggle + sticky nav shadow on scroll.
+// Public site: mobile menu toggle + lightweight click tracking.
 (function () {
-  var toggle = document.getElementById("navToggle");
-  var links = document.getElementById("navLinks");
-  var nav = document.getElementById("siteNav");
-
-  if (toggle && links) {
-    toggle.addEventListener("click", function () {
-      var open = links.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    // Close menu when a link is tapped (mobile).
-    links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        links.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-      });
+  // Mobile menu
+  var mb = document.getElementById("menuBtn");
+  var nl = document.getElementById("navlinks");
+  if (mb && nl) {
+    mb.addEventListener("click", function () { nl.classList.toggle("open"); });
+    nl.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () { nl.classList.remove("open"); });
     });
   }
 
-  if (nav) {
-    var onScroll = function () {
-      if (window.scrollY > 10) nav.classList.add("scrolled");
-      else nav.classList.remove("scrolled");
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+  // Click tracking: any element with data-track sends a small beacon to /track.
+  // Used for the admin "website performance" insights. No personal data.
+  function track(kind, label) {
+    try {
+      var body = JSON.stringify({ kind: kind, label: label || "" });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("/track", new Blob([body], { type: "application/json" }));
+      } else {
+        fetch("/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true });
+      }
+    } catch (e) { /* never block navigation */ }
   }
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-track]");
+    if (el) track(el.getAttribute("data-track"), el.getAttribute("data-label"));
+  });
 })();

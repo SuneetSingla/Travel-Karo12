@@ -1,39 +1,30 @@
-<footer class="site-footer">
-  <div class="container footer-grid">
-    <div class="footer-brand">
-      <img src="/static/img/logo-wordmark.png" alt="Travel Karo" class="footer-logo" />
-      <p class="footer-tagline">{{ tagline }}</p>
-      <p class="footer-muted">A family-owned travel agency helping you plan memorable journeys — domestic and international.</p>
-    </div>
-
-    <div>
-      <h4 class="footer-head">Explore</h4>
-      <ul class="footer-list">
-        <li><a href="/">Home</a></li>
-        <li><a href="/packages">Packages</a></li>
-        <li><a href="/contact">Contact Us</a></li>
-        <li><a href="/contact">Book a Package</a></li>
-      </ul>
-    </div>
-
-    <div>
-      <h4 class="footer-head">Contact</h4>
-      <ul class="footer-list">
-        {% if biz.phone %}<li><a href="tel:{{ biz.phone | replace(' ', '') }}">{{ biz.phone }}</a></li>{% endif %}
-        {% if biz.email %}<li><a href="mailto:{{ biz.email }}">{{ biz.email }}</a></li>{% endif %}
-        {% if biz.website %}<li><a href="https://{{ biz.website | replace('https://','') | replace('http://','') }}" target="_blank" rel="noopener">{{ biz.website }}</a></li>{% endif %}
-        {% if biz.address %}<li class="footer-muted">{{ biz.address }}</li>{% endif %}
-      </ul>
-      <div class="footer-social">
-        {% if biz.instagram %}<a href="{{ biz.instagram }}" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>{% endif %}
-        {% if biz.facebook %}<a href="{{ biz.facebook }}" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>{% endif %}
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div>
+        <span class="f-brand">Travel Karo</span>
+        <p>{{ tagline }} Your trusted travel partner in Bathinda — flights, hotels, visas, holidays and more, booked with care.</p>
+      </div>
+      <div class="f-col">
+        <h5>Explore</h5>
+        <a href="/">Home</a>
+        <a href="/packages">Destinations</a>
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="f-col">
+        <h5>Contact</h5>
+        {% if biz.phone %}<a href="tel:{{ biz.phone | replace(' ','') }}" data-track="call">{{ biz.phone }}</a>{% endif %}
+        {% if biz.email %}<a href="mailto:{{ biz.email }}">{{ biz.email }}</a>{% endif %}
+        <a href="https://wa.me/{{ wa_number }}" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp Us</a>
+        {% if biz.instagram %}<a href="{{ biz.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        {% if biz.facebook %}<a href="{{ biz.facebook }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
+        {% if biz.address %}<a href="/contact">{{ biz.address }}</a>{% endif %}
       </div>
     </div>
-  </div>
-
-  <div class="footer-bottom">
-    <div class="container">
+    <div class="f-bottom">
       <span>© {{ year }} Travel Karo. All rights reserved.</span>
+      <span>IRCTC Authorised &nbsp;•&nbsp; GST Registered Agency</span>
     </div>
   </div>
 </footer>

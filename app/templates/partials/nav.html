@@ -1,18 +1,17 @@
-<header class="site-nav" id="siteNav">
-  <div class="container nav-inner">
-    <a href="/" class="nav-logo" aria-label="Travel Karo home">
-      <img src="/static/img/logo-wordmark.png" alt="Travel Karo" />
-    </a>
-
-    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-
-    <nav class="nav-links" id="navLinks">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/packages" class="nav-link">Packages</a>
-      <a href="/contact" class="nav-link">Contact Us</a>
-      <a href="/contact" class="btn btn-primary nav-cta">Book a Package</a>
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/" aria-label="Travel Karo home"><img src="/static/img/logo-wordmark.png" alt="Travel Karo" class="logo-img" /></a>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h18M4 13h18M4 19h18"/></svg>
+      </button>
+      <div class="nav-links" id="navlinks">
+        <a href="/" class="{% if active_nav=='home' %}active{% endif %}">Home</a>
+        <a href="/packages" class="{% if active_nav=='destinations' %}active{% endif %}">Destinations</a>
+        <a href="/about" class="{% if active_nav=='about' %}active{% endif %}">About</a>
+        <a href="/contact" class="{% if active_nav=='contact' %}active{% endif %}">Contact</a>
+        <a href="/contact" class="btn">Book Now</a>
+      </div>
     </nav>
   </div>
 </header>

@@ -3,10 +3,18 @@
 A complete, working website for **Travel Karo** (Bathinda, Punjab), built with
 **FastAPI + Jinja2 + SQLAlchemy**. One Python app runs everything:
 
-- **Public website** — Home, Packages (+ detail pages), Contact Us, and a
-  "Book a Package" enquiry flow.
-- **Admin panel** (`/admin`, login required) — live dashboard with charts,
-  package manager (with image upload), a built-in CRM, and settings.
+- **Public website** — Home, Destinations (Domestic / International tabs), About,
+  Contact, a "Book Now" enquiry flow, a floating WhatsApp button, and IRCTC /
+  GST trust labels.
+- **Admin panel** (`/admin`, login required) — live dashboard with enquiry charts
+  **and website-performance insights (page views + visitor clicks)**, package
+  manager (image upload + Domestic/International category), a built-in CRM, and
+  settings where the owner can change the **login email and password**.
+
+> **Admin login:** the first account is created with `create_admin.py` (a
+> temporary email + password). After logging in, change both under
+> **Admin → Settings**. Auth uses secure signed-session cookies with bcrypt
+> password hashing — no separate token setup needed.
 
 Every enquiry from the website becomes a CRM lead **automatically** — no email,
 no copy-paste. Packages you publish appear on the site instantly.
@@ -83,8 +91,8 @@ travel-karo/
 
 ## 🎨 Changing the look & content
 
-- **Brand colours:** open `app/static/css/styles.css` — the colours are at the very
-  top under `:root`. Change them in one place and the whole site updates.
+- **Brand colours (public site):** open `app/static/css/public.css` — the colours are
+  at the very top under `:root`. The admin panel uses `app/static/css/styles.css`.
 - **Logo:** replace `app/static/img/logo-wordmark.png` and `logo-emblem.jpg` with
   new files of the same name.
 - **Business phone / email / address / socials:** change them in the **admin →
