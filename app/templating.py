@@ -4,12 +4,13 @@ from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 
-from .config import settings
+from .config import settings, TEMPLATES_DIR
 from .database import SessionLocal
 from .models import BusinessSettings, SERVICES, LEAD_STATUSES
 from .utils import lines_to_list
 
-templates = Jinja2Templates(directory="app/templates")
+# Absolute path — resolves from any working directory (local, VPS or serverless).
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Handy helpers usable inside templates
 templates.env.filters["as_list"] = lines_to_list

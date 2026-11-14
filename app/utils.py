@@ -8,10 +8,13 @@ from collections import defaultdict
 from fastapi import UploadFile, HTTPException
 from PIL import Image
 
-from .config import settings
+from .config import settings, UPLOADS_DIR
 
-UPLOAD_DIR = "uploads/packages"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+UPLOAD_DIR = str(UPLOADS_DIR / "packages")
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except OSError:
+    pass  # read-only filesystem (serverless) — see notes on persistent storage
 
 
 def save_package_image(file: UploadFile) -> str:

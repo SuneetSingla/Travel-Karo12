@@ -7,14 +7,19 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
-from .config import settings
+from .config import settings, STATIC_DIR, UPLOADS_DIR
 from .database import Base, engine, SessionLocal
 from .models import BusinessSettings
 from .templating import templates, base_context
 from .routers import public, admin
 
-# Create tables on first run (safe to call every start).
-Base.metadata.create_all(bind=engine)
+# Create tables on first run (safe to call every start). Guarded so that a
+# read-only or unavailable database (e.g. a misconfigured serverless deploy)
+# cannot prevent the app from importing — pages that don't need the DB still work.
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 
 def _ensure_columns() -> None:
@@ -68,9 +73,15 @@ app.add_middleware(
     same_site="lax",
 )
 
-# Serve static assets and uploaded package images.
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Serve static assets and uploaded package images (absolute paths).
+# check_dir=False lets the app boot even if the uploads folder doesn't exist yet
+# (e.g. a fresh serverless instance).
+try:
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass  # read-only filesystem (serverless) — uploads need external storage
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR), check_dir=False), name="static")
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR), check_dir=False), name="uploads")
 
 app.include_router(public.router)
 app.include_router(admin.router)
