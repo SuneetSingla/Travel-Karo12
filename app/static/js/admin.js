@@ -14,7 +14,7 @@
     var v = window.TK_CHARTS.views;
     new Chart(el("chartViews"), {
       type: "line",
-      data: { labels: v.labels, datasets: [{ data: v.values, label: "Page views",
+      data: { labels: v.labels, datasets: [{ data: v.values, label: "Visits",
         borderColor: PINK, backgroundColor: "rgba(236,72,153,.12)", fill: true,
         tension: 0.35, pointBackgroundColor: PINK, borderWidth: 2 }] },
       options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },

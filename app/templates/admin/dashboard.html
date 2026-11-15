@@ -19,9 +19,9 @@
     <span class="muted sm">reach &amp; visitor actions</span>
   </div>
   <div class="stat-grid" style="margin-bottom:20px">
-    <div class="stat-card"><span class="stat-label">Total page views</span><span class="stat-value">{{ perf.total_views }}</span></div>
-    <div class="stat-card"><span class="stat-label">Views (7 days)</span><span class="stat-value">{{ perf.views_7 }}</span></div>
-    <div class="stat-card"><span class="stat-label">Views (30 days)</span><span class="stat-value">{{ perf.views_30 }}</span></div>
+    <div class="stat-card"><span class="stat-label">Total visits</span><span class="stat-value">{{ perf.total_views }}</span></div>
+    <div class="stat-card"><span class="stat-label">Visits (7 days)</span><span class="stat-value">{{ perf.views_7 }}</span></div>
+    <div class="stat-card"><span class="stat-label">Visits (30 days)</span><span class="stat-value">{{ perf.views_30 }}</span></div>
     <div class="stat-card accent-new"><span class="stat-label">Button clicks</span><span class="stat-value">{{ perf.total_clicks }}</span></div>
   </div>
 
@@ -33,7 +33,7 @@
 
   <div class="chart-grid" style="margin-top:20px">
     <div>
-      <h3 class="panel-title" style="font-size:.95rem">Most visited pages</h3>
+      <h3 class="panel-title" style="font-size:.95rem">Top landing pages</h3>
       {% if top_pages %}
       <table class="data-table"><tbody>
         {% for name, count in top_pages %}

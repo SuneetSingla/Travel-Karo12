@@ -42,10 +42,15 @@ app.include_router(public.router)
 app.include_router(admin.router)
 
 
-# --- Website reach tracking -------------------------------------------------
-# Record a page view for each public page a visitor opens. Admin, static files,
-# uploads and the tracking endpoint itself are ignored.
+# --- Website visit tracking -------------------------------------------------
+# Count one VISIT per browsing session, not one per page. A short-lived cookie
+# marks an active visit; while it is set, navigating between pages does not add
+# to the count. After ~30 minutes of inactivity the cookie expires and the next
+# page view counts as a new visit. Admin, static files, uploads and the tracking
+# endpoint are ignored.
 _TRACKED_EXACT = {"/", "/packages", "/about", "/contact"}
+_VISIT_COOKIE = "tk_v"
+_VISIT_WINDOW = 1800  # seconds (30 minutes)
 
 
 def _is_tracked(path: str) -> bool:
@@ -57,17 +62,25 @@ def _is_tracked(path: str) -> bool:
 
 
 @app.middleware("http")
-async def record_page_view(request: Request, call_next):
+async def record_visit(request: Request, call_next):
     response = await call_next(request)
     try:
         if request.method == "GET" and response.status_code < 400 and _is_tracked(request.url.path):
-            from .models import PageView
-            db = SessionLocal()
-            try:
-                db.add(PageView(path=request.url.path))
-                db.commit()
-            finally:
-                db.close()
+            # Only the first page of a visit (no active cookie) counts.
+            if not request.cookies.get(_VISIT_COOKIE):
+                from .models import PageView
+                db = SessionLocal()
+                try:
+                    db.add(PageView(path=request.url.path))
+                    db.commit()
+                finally:
+                    db.close()
+            # (Re)set the sliding visit cookie so later pages in this session
+            # don't count again.
+            response.set_cookie(
+                _VISIT_COOKIE, "1", max_age=_VISIT_WINDOW,
+                httponly=True, samesite="lax", secure=settings.PRODUCTION,
+            )
     except Exception:
         pass  # analytics must never break a page load
     return response
