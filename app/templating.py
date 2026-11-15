@@ -1,5 +1,5 @@
 """Jinja2 template engine + values made available to every template."""
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
@@ -12,8 +12,23 @@ from .utils import lines_to_list
 # Absolute path — resolves from any working directory (local, VPS or serverless).
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+# India Standard Time (UTC+5:30, no DST). Timestamps are stored in UTC and
+# converted to IST only for display.
+_IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def to_ist(dt, fmt="%d %b %Y, %H:%M"):
+    """Format a stored (naive UTC) datetime in India Standard Time."""
+    if dt is None:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(_IST).strftime(fmt)
+
+
 # Handy helpers usable inside templates
 templates.env.filters["as_list"] = lines_to_list
+templates.env.filters["ist"] = to_ist
 
 
 _DEFAULT_SETTINGS = dict(

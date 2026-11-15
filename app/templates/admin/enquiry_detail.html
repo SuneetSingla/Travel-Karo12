@@ -24,7 +24,7 @@
       <div><dt>Travel date</dt><dd>{{ lead.travel_date.strftime('%d %b %Y') if lead.travel_date else '—' }}</dd></div>
       <div><dt>Travellers</dt><dd>{{ lead.num_travellers or '—' }}</dd></div>
       <div><dt>Email</dt><dd>{{ lead.email or '—' }}</dd></div>
-      <div><dt>Received</dt><dd>{{ lead.created_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+      <div><dt>Received</dt><dd>{{ lead.created_at | ist('%d %b %Y, %H:%M') }}</dd></div>
     </dl>
 
     {% if lead.message %}
@@ -70,7 +70,7 @@
       {% for n in lead.notes %}
       <div class="note-item">
         <p>{{ n.note }}</p>
-        <span class="note-time">{{ n.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+        <span class="note-time">{{ n.created_at | ist('%d %b %Y, %H:%M') }}</span>
       </div>
       {% else %}
       <p class="muted">No notes yet.</p>

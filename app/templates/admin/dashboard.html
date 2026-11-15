@@ -99,7 +99,7 @@
           <td>{{ e.customer_name }}</td>
           <td>{{ e.phone }}</td>
           <td>{{ e.interested_service or (e.package_name and 'Package: ' ~ e.package_name) or '—' }}</td>
-          <td>{{ e.created_at.strftime('%d %b, %H:%M') }}</td>
+          <td>{{ e.created_at | ist('%d %b, %H:%M') }}</td>
           <td><span class="badge status-{{ e.status | replace(' ','-') | replace('/','') | lower }}">{{ e.status }}</span></td>
           <td><a href="/admin/enquiries/{{ e.id }}" class="link-open">Open →</a></td>
         </tr>

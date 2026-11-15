@@ -33,7 +33,7 @@
           <td>{{ e.phone }}</td>
           <td>{{ e.interested_service or e.package_name or '—' }}</td>
           <td><span class="src-tag">{{ e.source }}</span></td>
-          <td>{{ e.created_at.strftime('%d %b %Y') }}</td>
+          <td>{{ e.created_at | ist('%d %b %Y') }}</td>
           <td><span class="badge status-{{ e.status | replace(' ','-') | replace('/','') | lower }}">{{ e.status }}</span></td>
           <td class="row-actions">
             <a href="https://wa.me/{{ e.phone | replace(' ','') | replace('+','') | replace('-','') }}" target="_blank" class="icon-btn wa" title="WhatsApp">WA</a>
